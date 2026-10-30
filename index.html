@@ -3,215 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IKURA Bar - Kiểm Kho</title>
+    <title>IKURA Bar - Quản Lý & Kiểm Kho</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .category-header { position: sticky; top: 0; background: #f8fafc; z-index: 10; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-gray-100 p-3 font-sans pb-28">
-    <div class="max-w-md mx-auto bg-white rounded-xl shadow-lg p-4">
+<body class="bg-gray-100 font-sans pb-32">
+    <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative">
+        
         <!-- HEADER -->
-        <div class="border-b pb-3 mb-4 text-center">
-            <h1 class="text-xl font-bold text-red-600 tracking-wide">🍷 IKURA BAR - BESTELLLISTE</h1>
-            <p class="text-xs text-gray-500 mt-1" id="datetime"></p>
+        <div class="bg-red-600 text-white p-4 sticky top-0 z-20 shadow">
+            <div class="flex justify-between items-center">
+                <h1 class="font-bold text-lg">🍷 IKURA BAR INVENTORY</h1>
+                <button onclick="toggleManageModal()" class="bg-red-700 hover:bg-red-800 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
+                    <i class="fa-solid fa-gear"></i> Sửa Menu
+                </button>
+            </div>
+            <p class="text-xs text-red-100 mt-1" id="datetime"></p>
         </div>
 
-        <form id="inventoryForm" class="space-y-6">
-            
-            <!-- 1. KELLNER / SERVICE -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-red-700 text-sm mb-2 uppercase tracking-wide">🧑‍🍳 KELLNER / SERVICE</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Servietten</span> <input type="checkbox" name="item" value="Servietten" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kerzen</span> <input type="checkbox" name="item" value="Kerzen" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Toilette Papier</span> <input type="checkbox" name="item" value="Toilette Papier" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Bierdeckeln für Veranstaltung</span> <input type="checkbox" name="item" value="Bierdeckeln für Veranstaltung" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Servietten für Veranstaltung</span> <input type="checkbox" name="item" value="Servietten für Veranstaltung" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 2. TEE & GETRÄNKE BASIS -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-amber-800 text-sm mb-2 uppercase tracking-wide">☕ TEE & GETRÄNKE BASIS</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">T1. Trà Dưỡng Nhan 7 Vị (VN)</span> <input type="checkbox" name="item" value="T1. Trà Dưỡng Nhan 7 Vị (VN)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">T2. Trà Cam Quế Hoa Hồng (VN)</span> <input type="checkbox" name="item" value="T2. Trà Cam Quế Hoa Hồng (VN)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">T3. Trà Dưỡng Tâm 5 Vị (VN)</span> <input type="checkbox" name="item" value="T3. Trà Dưỡng Tâm 5 Vị (VN)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">G7 Kaffee Pulver (Asia Markt)</span> <input type="checkbox" name="item" value="G7 Kaffee Pulver (Asia Markt)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Matcha Pulver Cozy (Asia Markt)</span> <input type="checkbox" name="item" value="Matcha Pulver Cozy (Asia Markt)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Trà Chanh Hương Nhài Cozy</span> <input type="checkbox" name="item" value="Trà Chanh Hương Nhài Cozy (Asia)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Ingwer Tee (Kaufland)</span> <input type="checkbox" name="item" value="Ingwer Tee (Kaufland)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Schokolade Pulver</span> <input type="checkbox" name="item" value="Schokolade Pulver" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Teebeutel für Losen Tee</span> <input type="checkbox" name="item" value="Teebeutel für Losen Tee" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 3. MILCH & SAHNE -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-blue-700 text-sm mb-2 uppercase tracking-wide">🥛 MILCH & SAHNE</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Milch Laktosefrei 3,5%</span> <input type="checkbox" name="item" value="Milch Laktosefrei 3,5%" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kaffeesahne</span> <input type="checkbox" name="item" value="Kaffeesahne" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kondensmilch</span> <input type="checkbox" name="item" value="Kondensmilch" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Schlagsahne (Schlagfix)</span> <input type="checkbox" name="item" value="Schlagsahne (Schlagfix)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Sprühsahne</span> <input type="checkbox" name="item" value="Sprühsahne" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kokosmilch</span> <input type="checkbox" name="item" value="Kokosmilch" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Zuckersticks</span> <input type="checkbox" name="item" value="Zuckersticks" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 4. SIRUP & SOSSEN -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-amber-600 text-sm mb-2 uppercase tracking-wide">🍯 SIRUP & SOSSEN</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Schokolade Soße</span> <input type="checkbox" name="item" value="Schokolade Soße" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Erdbeer Sirup (Monin)</span> <input type="checkbox" name="item" value="Erdbeer Sirup (Monin)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Rose Sirup (Monin)</span> <input type="checkbox" name="item" value="Rose Sirup (Monin)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Blue Curacao Sirup (Monin)</span> <input type="checkbox" name="item" value="Blue Curacao Sirup (Monin)" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 5. FRÜCHTE & PÜREE -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-pink-600 text-sm mb-2 uppercase tracking-wide">🍓 FRÜCHTE & PÜREE</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Erdbeer Püree</span> <input type="checkbox" name="item" value="Erdbeer Püree" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mango Püree</span> <input type="checkbox" name="item" value="Mango Püree" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Litschi (geschält)</span> <input type="checkbox" name="item" value="Litschi (geschält)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Limetten</span> <input type="checkbox" name="item" value="Limetten" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Orange</span> <input type="checkbox" name="item" value="Orange" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Minze</span> <input type="checkbox" name="item" value="Minze" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 6. KRÄUTER & SAFT -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-green-700 text-sm mb-2 uppercase tracking-wide">🌿 KRÄUTER & SAFT</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Zitronengras</span> <input type="checkbox" name="item" value="Zitronengras" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Rosenblätter (getrocknet)</span> <input type="checkbox" name="item" value="Rosenblätter (getrocknet)" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Limettensaft</span> <input type="checkbox" name="item" value="Limettensaft" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Chanh Muối (Yuzu)</span> <input type="checkbox" name="item" value="Chanh Muối (Yuzu)" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 7. ALKOHOL -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-purple-700 text-sm mb-2 uppercase tracking-wide">🍷 ALKOHOL</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Choya Pflaumenwein</span> <input type="checkbox" name="item" value="Choya Pflaumenwein" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Choya Reiswein</span> <input type="checkbox" name="item" value="Choya Reiswein" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Wodka</span> <input type="checkbox" name="item" value="Wodka" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Jägermeister</span> <input type="checkbox" name="item" value="Jägermeister" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Tequila</span> <input type="checkbox" name="item" value="Tequila" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Jim Beam</span> <input type="checkbox" name="item" value="Jim Beam" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 8. DESSERT -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-cyan-700 text-sm mb-2 uppercase tracking-wide">🍨 DESSERT</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mochi Eis - Matcha</span> <input type="checkbox" name="item" value="Mochi Eis - Matcha" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mochi Eis - Mango</span> <input type="checkbox" name="item" value="Mochi Eis - Mango" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mochi Eis - Vanille</span> <input type="checkbox" name="item" value="Mochi Eis - Vanille" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mochi Eis - Schoko</span> <input type="checkbox" name="item" value="Mochi Eis - Schoko" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mochi Eis - Erdbeer</span> <input type="checkbox" name="item" value="Mochi Eis - Erdbeer" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mochi Eis - Kokos</span> <input type="checkbox" name="item" value="Mochi Eis - Kokos" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Vanille Eis</span> <input type="checkbox" name="item" value="Vanille Eis" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 9. BOBOQ - SIRUP -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-purple-800 text-sm mb-2 uppercase tracking-wide">🧋 BOBOQ - SIRUP</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Erdbeer</span> <input type="checkbox" name="item" value="BOBOQ Sirup - Erdbeer" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Mango</span> <input type="checkbox" name="item" value="BOBOQ Sirup - Mango" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Pfirsich</span> <input type="checkbox" name="item" value="BOBOQ Sirup - Pfirsich" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Litschi</span> <input type="checkbox" name="item" value="BOBOQ Sirup - Litschi" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Honigmelone</span> <input type="checkbox" name="item" value="BOBOQ Sirup - Honigmelone" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Brauner Zucker</span> <input type="checkbox" name="item" value="BOBOQ Sirup - Brauner Zucker" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 10. BOBOQ - TOPPING -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-teal-700 text-sm mb-2 uppercase tracking-wide">🧋 BOBOQ - TOPPING</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kristallkugel Litschi</span> <input type="checkbox" name="item" value="Kristallkugel Litschi" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kristallkugel Erdbeer</span> <input type="checkbox" name="item" value="Kristallkugel Erdbeer" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kristallkugel Mango</span> <input type="checkbox" name="item" value="Kristallkugel Mango" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kristallkugel Pfirsich</span> <input type="checkbox" name="item" value="Kristallkugel Pfirsich" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kristall Brauner Zucker</span> <input type="checkbox" name="item" value="Kristall Brauner Zucker" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Tapioka</span> <input type="checkbox" name="item" value="Tapioka" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 11. BOBOQ - MIXING -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-indigo-700 text-sm mb-2 uppercase tracking-wide">🧋 BOBOQ - MIXING</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Kaffeeweiser</span> <input type="checkbox" name="item" value="Kaffeeweiser" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Fructose</span> <input type="checkbox" name="item" value="Fructose" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Passionsfrucht Püree</span> <input type="checkbox" name="item" value="Passionsfrucht Püree" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Geröstete Oolong-Tee</span> <input type="checkbox" name="item" value="Geröstete Oolong-Tee" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Jasmin Grüner-Tee</span> <input type="checkbox" name="item" value="Jasmin Grüner-Tee" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Earl-Grey-Tee</span> <input type="checkbox" name="item" value="Earl-Grey-Tee" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- 12. VERPACKUNG -->
-            <div class="border rounded-lg p-3 bg-gray-50">
-                <h2 class="font-bold text-gray-700 text-sm mb-2 uppercase tracking-wide">📦 VERPACKUNG</h2>
-                <div class="space-y-2 text-sm">
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">700ml Becher</span> <input type="checkbox" name="item" value="700ml Becher" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">500ml Becher</span> <input type="checkbox" name="item" value="500ml Becher" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Becher Deckel</span> <input type="checkbox" name="item" value="Becher Deckel" class="w-5 h-5 accent-red-600"></label>
-                    <label class="flex items-center justify-between p-1 bg-white rounded border"><span class="font-medium">Strohhalme 1</span> <input type="checkbox" name="item" value="Strohhalme 1" class="w-5 h-5 accent-red-600"></label>
-                </div>
-            </div>
-
-            <!-- NÚT BẤM CỐ ĐỊNH PHÍA DƯỚI -->
-            <div class="fixed bottom-0 left-0 right-0 p-3 bg-white border-t shadow-lg flex gap-2 max-w-md mx-auto z-50">
-                <button type="button" onclick="generateOrder()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg text-sm tracking-wide shadow transition">📋 TẠO DANH SÁCH MÓN THIẾU</button>
-            </div>
-        </form>
-
-        <!-- KẾT QUẢ HIỂN THỊ -->
-        <div id="result" class="hidden mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <h3 class="font-bold text-sm text-gray-800 mb-2">📋 BESTELLLISTE GỬI NHÀ CUNG CẤP:</h3>
-            <textarea id="orderText" class="w-full h-44 text-xs font-mono p-3 border rounded-lg bg-white shadow-inner focus:outline-none" readonly></textarea>
-            <button onclick="copyText()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg text-xs tracking-wide shadow mt-2 transition">📋 COPY DANH SÁCH</button>
+        <!-- SEARCH BAR & QUICK FILTERS -->
+        <div class="p-3 bg-gray-50 border-b">
+            <input type="text" id="searchInput" onkeyup="filterItems()" placeholder="🔍 Tìm nhanh món..." class="w-full text-sm p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
         </div>
+
+        <!-- INVENTORY LIST -->
+        <div id="inventoryContainer" class="p-3 space-y-4">
+            <!-- Render động từ LocalStorage -->
+        </div>
+
+        <!-- FIXED FOOTER ACTIONS -->
+        <div class="fixed bottom-0 left-0 right-0 p-3 bg-white border-t shadow-2xl max-w-md mx-auto z-20 flex gap-2">
+            <button onclick="generateOrder()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm shadow transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> TẠO BESTELLLISTE
+            </button>
+            <button onclick="resetForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-xl transition" title="Xóa chọn">
+                <i class="fa-solid fa-rotate-right"></i>
+            </button>
+        </div>
+
+        <!-- RESULT MODAL -->
+        <div id="resultModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+            <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-4 space-y-3 max-h-[85vh] flex flex-col">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="font-bold text-gray-800 text-sm">📋 BESTELLLISTE GỬI NHÀ CUNG CẤP</h3>
+                    <button onclick="closeModal('resultModal')" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <textarea id="orderText" class="w-full h-64 text-xs font-mono p-3 border rounded-xl bg-gray-50 focus:outline-none" readonly></textarea>
+                <div class="flex gap-2">
+                    <button onclick="copyText()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
+                        <i class="fa-solid fa-copy"></i> Copy gửi Tin Nhắn
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANAGE MENU MODAL -->
+        <div id="manageModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-3">
+            <div class="bg-white w-full max-w-md rounded-2xl p-4 space-y-4 max-h-[90vh] flex flex-col shadow-2xl">
+                <div class="flex justify-between items-center border-b pb-2">
+                    <h3 class="font-bold text-gray-800 text-sm">⚙️ THÊM / QUẢN LÝ MÓN MENU</h3>
+                    <button onclick="toggleManageModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                
+                <!-- Form Thêm Món -->
+                <div class="bg-gray-50 p-3 rounded-xl border space-y-2 text-xs">
+                    <div class="font-bold text-gray-700">Thêm món mới:</div>
+                    <select id="newCat" class="w-full p-2 border rounded bg-white"></select>
+                    <input type="text" id="newName" placeholder="Tên món (VD: Matchapulver 1kg)" class="w-full p-2 border rounded">
+                    <button onclick="addNewItem()" class="w-full bg-red-600 text-white font-bold py-2 rounded shadow">THÊM VÀO MENU</button>
+                </div>
+
+                <!-- Danh Sách Xóa/Sửa -->
+                <div class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs" id="manageList"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        document.getElementById('datetime').innerText = "Thời gian kiểm: " + new Date().toLocaleString('de-DE');
+        // Data mặc định ban đầu từ Excel IKURA
+        const defaultData = {
+            "🧑‍🍳 KELLNER / SERVICE": ["Servietten", "Kerzen", "Toilette Papier", "Bierdeckeln für Veranstaltung", "Servietten für Veranstaltung"],
+            "☕ TEE & GETRÄNKE BASIS": ["T1. Trà Dưỡng Nhan 7 Vị (VN)", "T2. Trà Cam Quế Hoa Hồng (VN)", "T3. Trà Dưỡng Tâm 5 Vị (VN)", "G7 Kaffee Pulver (Asia Markt)", "Matcha Pulver Cozy (Asia Markt)", "Trà Chanh Hương Nhài Cozy (Asia)", "Ingwer Tee (Kaufland)", "Schokolade Pulver", "Teebeutel für Losen Tee"],
+            "🥛 MILCH & SAHNE": ["Milch Laktosefrei 3,5%", "Kaffeesahne", "Kondensmilch", "Schlagsahne (Schlagfix)", "Sprühsahne", "Kokosmilch", "Zuckersticks"],
+            "🍯 SIRUP & SOSSEN": ["Schokolade Soße", "Erdbeer Sirup (Monin)", "Rose Sirup (Monin)", "Blue Curacao Sirup (Monin)"],
+            "🍓 FRÜCHTE & PÜREE": ["Erdbeer Püree", "Mango Püree", "Litschi (geschält)", "Limetten", "Orange", "Minze"],
+            "🌿 KRÄUTER & SAFT": ["Zitronengras", "Rosenblätter (getrocknet)", "Limettensaft", "Chanh Muối (Yuzu)"],
+            "🍷 ALKOHOL": ["Choya Pflaumenwein", "Choya Reiswein", "Wodka", "Jägermeister", "Tequila", "Jim Beam"],
+            "🍨 DESSERT": ["Mochi Eis - Matcha", "Mochi Eis - Mango", "Mochi Eis - Vanille", "Mochi Eis - Schoko", "Mochi Eis - Erdbeer", "Mochi Eis - Kokos", "Vanille Eis"],
+            "🧋 BOBOQ - SIRUP": ["Erdbeer", "Mango", "Pfirsich", "Litschi", "Honigmelone", "Brauner Zucker"],
+            "🧋 BOBOQ - TOPPING": ["Kristallkugel Litschi", "Kristallkugel Erdbeer", "Kristallkugel Mango", "Kristallkugel Pfirsich", "Kristall Brauner Zucker", "Tapioka"],
+            "🧋 BOBOQ - MIXING": ["Kaffeeweiser", "Fructose", "Passionsfrucht Püree", "Geröstete Oolong-Tee", "Jasmin Grüner-Tee", "Earl-Grey-Tee"],
+            "📦 VERPACKUNG": ["700ml Becher", "500ml Becher", "Becher Deckel", "Strohhalme 1"]
+        };
+
+        let menuData = JSON.parse(localStorage.getItem('ikura_menu')) || defaultData;
+
+        function initApp() {
+            document.getElementById('datetime').innerText = "Thời gian: " + new Date().toLocaleString('de-DE');
+            renderInventory();
+            populateCatDropdown();
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventoryContainer');
+            container.innerHTML = '';
+
+            for (const [cat, items] of Object.entries(menuData)) {
+                if (items.length === 0) continue;
+                
+                let catHtml = `
+                    <div class="item-category border rounded-xl bg-white shadow-sm overflow-hidden">
+                        <div class="bg-gray-100 px-3 py-2 font-bold text-xs text-gray-700 uppercase tracking-wider border-b flex justify-between items-center">
+                            <span>${cat}</span>
+                            <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">${items.length} món</span>
+                        </div>
+                        <div class="divide-y text-xs">
+                `;
+
+                items.forEach((item, index) => {
+                    const id = `item_${cat.replace(/\s+/g, '')}_${index}`;
+                    catHtml += `
+                        <div class="item-row p-3 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label for="${id}_check" class="font-semibold text-gray-800 cursor-pointer text-sm flex-1">${item}</label>
+                                <input type="checkbox" id="${id}_check" onchange="toggleInputs('${id}')" class="w-5 h-5 accent-red-600 cursor-pointer">
+                            </div>
+                            <div id="${id}_inputs" class="hidden grid grid-cols-5 gap-2 pt-1">
+                                <input type="text" id="${id}_qty" placeholder="Số lượng" class="col-span-2 p-2 border rounded bg-yellow-50 font-semibold text-xs focus:ring-1 focus:ring-red-500">
+                                <input type="text" id="${id}_unit" placeholder="Đơn vị (Hộp/Chai/Thùng)" class="col-span-3 p-2 border rounded bg-gray-50 text-xs">
+                                <input type="text" id="${id}_note" placeholder="Ghi chú thêm (Nếu có)..." class="col-span-5 p-2 border rounded text-gray-500 text-[11px]">
+                            </div>
+                        </div>
+                    `;
+                });
+
+                catHtml += `</div></div>`;
+                container.innerHTML += catHtml;
+            }
+        }
+
+        function toggleInputs(id) {
+            const check = document.getElementById(`${id}_check`);
+            const inputs = document.getElementById(`${id}_inputs`);
+            if (check.checked) {
+                inputs.classList.remove('hidden');
+            } else {
+                inputs.classList.add('hidden');
+            }
+        }
+
+        function filterItems() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('.item-row').forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? 'block' : 'none';
+            });
+        }
 
         function generateOrder() {
-            const checkboxes = document.querySelectorAll('input[name="item"]:checked');
-            if (checkboxes.length === 0) {
-                alert('Vui lòng tích chọn ít nhất 1 mặt hàng thiếu!');
+            let orderList = [];
+            
+            for (const [cat, items] of Object.entries(menuData)) {
+                items.forEach((item, index) => {
+                    const id = `item_${cat.replace(/\s+/g, '')}_${index}`;
+                    const check = document.getElementById(`${id}_check`);
+                    
+                    if (check && check.checked) {
+                        const qty = document.getElementById(`${id}_qty`).value.trim() || "1";
+                        const unit = document.getElementById(`${id}_unit`).value.trim();
+                        const note = document.getElementById(`${id}_note`).value.trim();
+                        
+                        let line = `• ${item}: ${qty} ${unit}`.trim();
+                        if (note) line += ` (${note})`;
+                        orderList.push(line);
+                    }
+                });
+            }
+
+            if (orderList.length === 0) {
+                alert('Vui lòng tích chọn ít nhất 1 món thiếu!');
                 return;
             }
+
             let text = "🧾 BESTELLLISTE IKURA BAR - " + new Date().toLocaleDateString('de-DE') + "\n";
             text += "-----------------------------------\n";
-            checkboxes.forEach(cb => {
-                text += "• " + cb.value + "\n";
-            });
+            text += orderList.join('\n');
+
             document.getElementById('orderText').value = text;
-            document.getElementById('result').classList.remove('hidden');
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            document.getElementById('resultModal').classList.remove('hidden');
         }
 
         function copyText() {
             const text = document.getElementById('orderText');
             text.select();
             document.execCommand('copy');
-            alert('Đã copy danh sách thành công! Anh có thể dán (paste) gửi qua Zalo / WhatsApp ngay.');
+            alert('Đã copy danh sách! Anh gửi trực tiếp qua WhatsApp / Zalo nhé.');
         }
+
+        function resetForm() {
+            if (confirm("Anh có muốn bỏ chọn tất cả các món không?")) {
+                renderInventory();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        // QUẢN LÝ MENU (THÊM / XÓA)
+        function toggleManageModal() {
+            const modal = document.getElementById('manageModal');
+            if (modal.classList.contains('hidden')) {
+                renderManageList();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function populateCatDropdown() {
+            const select = document.getElementById('newCat');
+            select.innerHTML = '';
+            Object.keys(menuData).forEach(cat => {
+                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            });
+        }
+
+        function renderManageList() {
+            const list = document.getElementById('manageList');
+            list.innerHTML = '';
+            
+            for (const [cat, items] of Object.entries(menuData)) {
+                items.forEach((item, index) => {
+                    list.innerHTML += `
+                        <div class="flex justify-between items-center p-2 bg-gray-50 border rounded">
+                            <span class="truncate font-medium">${item} <i class="text-[10px] text-gray-400">(${cat})</i></span>
+                            <button onclick="deleteItem('${cat}', ${index})" class="text-red-500 hover:text-red-700 ml-2 font-bold"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function addNewItem() {
+            const cat = document.getElementById('newCat').value;
+            const name = document.getElementById('newName').value.trim();
+            if (!name) return alert('Vui lòng nhập tên món!');
+            
+            menuData[cat].push(name);
+            localStorage.setItem('ikura_menu', JSON.stringify(menuData));
+            document.getElementById('newName').value = '';
+            
+            renderManageList();
+            renderInventory();
+            alert('Đã thêm món mới vào menu thành công!');
+        }
+
+        function deleteItem(cat, index) {
+            if (confirm(`Xóa món "${menuData[cat][index]}" khỏi menu?`)) {
+                menuData[cat].splice(index, 1);
+                localStorage.setItem('ikura_menu', JSON.stringify(menuData));
+                renderManageList();
+                renderInventory();
+            }
+        }
+
+        initApp();
     </script>
 </body>
 </html>
