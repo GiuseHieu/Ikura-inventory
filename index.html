@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IKURA Bar - Kiểm Kho</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4 font-sans pb-24">
+    <div class="max-w-md mx-auto bg-white rounded-xl shadow-md p-5">
+        <h1 class="text-xl font-bold text-red-600 border-b pb-2">🍷 IKURA BAR - KIỂM KHO</h1>
+        <p class="text-xs text-gray-500 my-2" id="datetime"></p>
+
+        <form id="inventoryForm" class="space-y-4">
+            <!-- TEE & GETRÄNKE BASIS -->
+            <div class="border-t pt-3">
+                <h2 class="font-bold text-gray-800 text-sm mb-2">☕ TEE & GETRÄNKE BASIS</h2>
+                <div class="space-y-2 text-sm">
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="T1. Trà Dưỡng Nhan 7 Vị (VN)"> T1. Trà Dưỡng Nhan 7 Vị</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="T2. Trà Cam Quế Hoa Hồng (VN)"> T2. Trà Cam Quế Hoa Hồng</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="T3. Trà Dưỡng Tâm 5 Vị (VN)"> T3. Trà Dưỡng Tâm 5 Vị</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="G7 Kaffee Pulver"> G7 Kaffee Pulver</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Matcha Pulver Cozy"> Matcha Pulver Cozy</label>
+                </div>
+            </div>
+
+            <!-- MILCH & SAHNE -->
+            <div class="border-t pt-3">
+                <h2 class="font-bold text-gray-800 text-sm mb-2">🥛 MILCH & SAHNE</h2>
+                <div class="space-y-2 text-sm">
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Milch Laktosefrei 3,5%"> Milch Laktosefrei 3,5%</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Kaffeesahne"> Kaffeesahne</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Kondensmilch"> Kondensmilch</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Schlagsahne (Schlagfix)"> Schlagsahne (Schlagfix)</label>
+                </div>
+            </div>
+
+            <!-- ALKOHOL -->
+            <div class="border-t pt-3">
+                <h2 class="font-bold text-gray-800 text-sm mb-2">🍷 ALKOHOL</h2>
+                <div class="space-y-2 text-sm">
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Choya Pflaumenwein"> Choya Pflaumenwein</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Choya Reiswein"> Choya Reiswein</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Wodka"> Wodka</label>
+                    <label class="flex items-center justify-between"><input type="checkbox" name="item" value="Jägermeister"> Jägermeister</label>
+                </div>
+            </div>
+
+            <button type="button" onclick="generateOrder()" class="w-full bg-red-600 text-white py-3 rounded-lg font-bold mt-4">📋 TẠO ĐƠN ĐẶT HÀNG</button>
+        </form>
+
+        <!-- KẾT QUẢ -->
+        <div id="result" class="hidden mt-5 p-3 bg-gray-50 rounded border">
+            <h3 class="font-bold text-sm mb-2">Danh sách gửi nhà cung cấp:</h3>
+            <textarea id="orderText" class="w-full h-32 text-xs p-2 border rounded" readonly></textarea>
+            <button onclick="copyText()" class="w-full bg-green-600 text-white py-2 rounded text-xs font-bold mt-2">📋 Copy danh sách</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('datetime').innerText = "Ngày kiểm: " + new Date().toLocaleString('vi-VN');
+
+        function generateOrder() {
+            const checkboxes = document.querySelectorAll('input[name="item"]:checked');
+            if (checkboxes.length === 0) {
+                alert('Vui lòng tích chọn ít nhất 1 mặt hàng thiếu!');
+                return;
+            }
+            let text = "BESTELLLISTE IKURA BAR - " + new Date().toLocaleDateString('de-DE') + "\n\n";
+            checkboxes.forEach(cb => {
+                text += "• " + cb.value + "\n";
+            });
+            document.getElementById('orderText').value = text;
+            document.getElementById('result').classList.remove('hidden');
+        }
+
+        function copyText() {
+            const text = document.getElementById('orderText');
+            text.select();
+            document.execCommand('copy');
+            alert('Đã copy danh sách!');
+        }
+    </script>
+</body>
+</html>
