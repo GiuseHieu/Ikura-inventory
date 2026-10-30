@@ -3,273 +3,565 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IKURA Bar - Quản Lý & Kiểm Kho</title>
+    <title>IKURA Bar - Quản Lý Kho Đồ Uống</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- React & ReactDOM CDN -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- Babel CDN -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-gray-100 font-sans pb-32">
-    <div class="max-w-md mx-auto bg-white min-h-screen shadow-xl relative">
-        
-        <!-- HEADER -->
-        <div class="bg-red-600 text-white p-4 sticky top-0 z-20 shadow">
-            <div class="flex justify-between items-center">
-                <h1 class="font-bold text-lg">🍷 IKURA BAR INVENTORY</h1>
-                <button onclick="toggleManageModal()" class="bg-red-700 hover:bg-red-800 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1">
-                    <i class="fa-solid fa-gear"></i> Sửa Menu
-                </button>
-            </div>
-            <p class="text-xs text-red-100 mt-1" id="datetime"></p>
-        </div>
+<body class="bg-slate-900 text-slate-100 font-sans">
+    <div id="root"></div>
 
-        <!-- SEARCH BAR & QUICK FILTERS -->
-        <div class="p-3 bg-gray-50 border-b">
-            <input type="text" id="searchInput" onkeyup="filterItems()" placeholder="🔍 Tìm nhanh món..." class="w-full text-sm p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect } = React;
 
-        <!-- INVENTORY LIST -->
-        <div id="inventoryContainer" class="p-3 space-y-4">
-            <!-- Render động từ LocalStorage -->
-        </div>
+        const INITIAL_ITEMS = [
+            { id: '1', name: 'Choya Pflaumenwein', category: 'Alcohol', unit: 'Flasche', soll: 6, current: 6, supplier: 'Asia Import' },
+            { id: '2', name: 'Choya Reiswein', category: 'Alcohol', unit: 'Flasche', soll: 6, current: 6, supplier: 'Asia Import' },
+            { id: '3', name: 'Wodka', category: 'Alcohol', unit: 'Flasche', soll: 4, current: 4, supplier: 'Selgros' },
+            { id: '4', name: 'Jägermeister', category: 'Alcohol', unit: 'Flasche', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: '5', name: 'Tequila', category: 'Alcohol', unit: 'Flasche', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: '6', name: 'Jim Beam', category: 'Alcohol', unit: 'Flasche', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: '10', name: 'T1. Trà Dưỡng Nhan 7 Vị (VN)', category: 'Tee & Basis', unit: 'Packung', soll: 5, current: 5, supplier: 'Asia Import' },
+            { id: '11', name: 'T2. Trà Cam Quế Hoa Hồng (VN)', category: 'Tee & Basis', unit: 'Packung', soll: 5, current: 5, supplier: 'Asia Import' },
+            { id: '12', name: 'T3. Trà Dưỡng Tâm 5 Vị (VN)', category: 'Tee & Basis', unit: 'Packung', soll: 5, current: 5, supplier: 'Asia Import' },
+            { id: '13', name: 'G7 Kaffee Pulver', category: 'Tee & Basis', unit: 'Karton', soll: 3, current: 3, supplier: 'Asia Import' },
+            { id: '14', name: 'Matcha Pulver Cozy', category: 'Tee & Basis', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: '15', name: 'Trà Chanh Hương Nhài Cozy', category: 'Tee & Basis', unit: 'Karton', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: '16', name: 'Ingwer Tee', category: 'Tee & Basis', unit: 'Packung', soll: 5, current: 5, supplier: 'Kaufland' },
+            { id: '20', name: 'Milch 3,5%', category: 'Milch & Sahne', unit: 'Karton (12L)', soll: 5, current: 5, supplier: 'Selgros' },
+            { id: '21', name: 'Kaffeesahne', category: 'Milch & Sahne', unit: 'Packung', soll: 4, current: 4, supplier: 'Selgros' },
+            { id: '22', name: 'Kondensmilch', category: 'Milch & Sahne', unit: 'Dose', soll: 6, current: 6, supplier: 'Asia Import' },
+            { id: '23', name: 'Schlagsahne (Schlagfix)', category: 'Milch & Sahne', unit: 'Karton', soll: 4, current: 4, supplier: 'Selgros' },
+            { id: '24', name: 'Kokosmilch', category: 'Milch & Sahne', unit: 'Dose', soll: 12, current: 12, supplier: 'Asia Import' },
+            { id: '30', name: 'Monin Sirup Erdbeer', category: 'Sirup & Soßen', unit: 'Flasche', soll: 3, current: 3, supplier: 'Hamberger' },
+            { id: '31', name: 'Monin Sirup Rose', category: 'Sirup & Soßen', unit: 'Flasche', soll: 2, current: 2, supplier: 'Hamberger' },
+            { id: '32', name: 'Monin Sirup Blue Curacao', category: 'Sirup & Soßen', unit: 'Flasche', soll: 2, current: 2, supplier: 'Hamberger' },
+            { id: '35', name: 'Schokolade Soße', category: 'Sirup & Soßen', unit: 'Flasche', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: '40', name: 'Erdbeer Püree', category: 'Früchte & Püree', unit: 'Flasche', soll: 4, current: 4, supplier: 'Hamberger' },
+            { id: '41', name: 'Mango Püree', category: 'Früchte & Püree', unit: 'Flasche', soll: 4, current: 4, supplier: 'Hamberger' },
+            { id: '44', name: 'Limetten', category: 'Früchte & Püree', unit: 'Karton', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: '45', name: 'Limettensaft', category: 'Früchte & Püree', unit: 'Flasche', soll: 6, current: 6, supplier: 'Selgros' }
+        ];
 
-        <!-- FIXED FOOTER ACTIONS -->
-        <div class="fixed bottom-0 left-0 right-0 p-3 bg-white border-t shadow-2xl max-w-md mx-auto z-20 flex gap-2">
-            <button onclick="generateOrder()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl text-sm shadow transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-paper-plane"></i> TẠO BESTELLLISTE
-            </button>
-            <button onclick="resetForm()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 p-3 rounded-xl transition" title="Xóa chọn">
-                <i class="fa-solid fa-rotate-right"></i>
-            </button>
-        </div>
+        const DEFAULT_SUPPLIERS = ['Asia Import', 'Selgros', 'Hamberger', 'Boboq', 'Kaufland', 'Sonstige'];
+        const CATEGORIES = ['Tất cả', 'Alcohol', 'Tee & Basis', 'Milch & Sahne', 'Sirup & Soßen', 'Früchte & Püree'];
 
-        <!-- RESULT MODAL -->
-        <div id="resultModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-            <div class="bg-white w-full max-w-md rounded-t-2xl sm:rounded-2xl p-4 space-y-3 max-h-[85vh] flex flex-col">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-gray-800 text-sm">📋 BESTELLLISTE GỬI NHÀ CUNG CẤP</h3>
-                    <button onclick="closeModal('resultModal')" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <textarea id="orderText" class="w-full h-64 text-xs font-mono p-3 border rounded-xl bg-gray-50 focus:outline-none" readonly></textarea>
-                <div class="flex gap-2">
-                    <button onclick="copyText()" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
-                        <i class="fa-solid fa-copy"></i> Copy gửi Tin Nhắn
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- MANAGE MENU MODAL -->
-        <div id="manageModal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-3">
-            <div class="bg-white w-full max-w-md rounded-2xl p-4 space-y-4 max-h-[90vh] flex flex-col shadow-2xl">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="font-bold text-gray-800 text-sm">⚙️ THÊM / QUẢN LÝ MÓN MENU</h3>
-                    <button onclick="toggleManageModal()" class="text-gray-400 hover:text-gray-600 text-lg"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                
-                <!-- Form Thêm Món -->
-                <div class="bg-gray-50 p-3 rounded-xl border space-y-2 text-xs">
-                    <div class="font-bold text-gray-700">Thêm món mới:</div>
-                    <select id="newCat" class="w-full p-2 border rounded bg-white"></select>
-                    <input type="text" id="newName" placeholder="Tên món (VD: Matchapulver 1kg)" class="w-full p-2 border rounded">
-                    <button onclick="addNewItem()" class="w-full bg-red-600 text-white font-bold py-2 rounded shadow">THÊM VÀO MENU</button>
-                </div>
-
-                <!-- Danh Sách Xóa/Sửa -->
-                <div class="flex-1 overflow-y-auto space-y-2 pr-1 text-xs" id="manageList"></div>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        // Data mặc định ban đầu từ Excel IKURA
-        const defaultData = {
-            "🧑‍🍳 KELLNER / SERVICE": ["Servietten", "Kerzen", "Toilette Papier", "Bierdeckeln für Veranstaltung", "Servietten für Veranstaltung"],
-            "☕ TEE & GETRÄNKE BASIS": ["T1. Trà Dưỡng Nhan 7 Vị (VN)", "T2. Trà Cam Quế Hoa Hồng (VN)", "T3. Trà Dưỡng Tâm 5 Vị (VN)", "G7 Kaffee Pulver (Asia Markt)", "Matcha Pulver Cozy (Asia Markt)", "Trà Chanh Hương Nhài Cozy (Asia)", "Ingwer Tee (Kaufland)", "Schokolade Pulver", "Teebeutel für Losen Tee"],
-            "🥛 MILCH & SAHNE": ["Milch Laktosefrei 3,5%", "Kaffeesahne", "Kondensmilch", "Schlagsahne (Schlagfix)", "Sprühsahne", "Kokosmilch", "Zuckersticks"],
-            "🍯 SIRUP & SOSSEN": ["Schokolade Soße", "Erdbeer Sirup (Monin)", "Rose Sirup (Monin)", "Blue Curacao Sirup (Monin)"],
-            "🍓 FRÜCHTE & PÜREE": ["Erdbeer Püree", "Mango Püree", "Litschi (geschält)", "Limetten", "Orange", "Minze"],
-            "🌿 KRÄUTER & SAFT": ["Zitronengras", "Rosenblätter (getrocknet)", "Limettensaft", "Chanh Muối (Yuzu)"],
-            "🍷 ALKOHOL": ["Choya Pflaumenwein", "Choya Reiswein", "Wodka", "Jägermeister", "Tequila", "Jim Beam"],
-            "🍨 DESSERT": ["Mochi Eis - Matcha", "Mochi Eis - Mango", "Mochi Eis - Vanille", "Mochi Eis - Schoko", "Mochi Eis - Erdbeer", "Mochi Eis - Kokos", "Vanille Eis"],
-            "🧋 BOBOQ - SIRUP": ["Erdbeer", "Mango", "Pfirsich", "Litschi", "Honigmelone", "Brauner Zucker"],
-            "🧋 BOBOQ - TOPPING": ["Kristallkugel Litschi", "Kristallkugel Erdbeer", "Kristallkugel Mango", "Kristallkugel Pfirsich", "Kristall Brauner Zucker", "Tapioka"],
-            "🧋 BOBOQ - MIXING": ["Kaffeeweiser", "Fructose", "Passionsfrucht Püree", "Geröstete Oolong-Tee", "Jasmin Grüner-Tee", "Earl-Grey-Tee"],
-            "📦 VERPACKUNG": ["700ml Becher", "500ml Becher", "Becher Deckel", "Strohhalme 1"]
-        };
-
-        let menuData = JSON.parse(localStorage.getItem('ikura_menu')) || defaultData;
-
-        function initApp() {
-            document.getElementById('datetime').innerText = "Thời gian: " + new Date().toLocaleString('de-DE');
-            renderInventory();
-            populateCatDropdown();
-        }
-
-        function renderInventory() {
-            const container = document.getElementById('inventoryContainer');
-            container.innerHTML = '';
-
-            for (const [cat, items] of Object.entries(menuData)) {
-                if (items.length === 0) continue;
-                
-                let catHtml = `
-                    <div class="item-category border rounded-xl bg-white shadow-sm overflow-hidden">
-                        <div class="bg-gray-100 px-3 py-2 font-bold text-xs text-gray-700 uppercase tracking-wider border-b flex justify-between items-center">
-                            <span>${cat}</span>
-                            <span class="text-[10px] bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">${items.length} món</span>
-                        </div>
-                        <div class="divide-y text-xs">
-                `;
-
-                items.forEach((item, index) => {
-                    const id = `item_${cat.replace(/\s+/g, '')}_${index}`;
-                    catHtml += `
-                        <div class="item-row p-3 space-y-2">
-                            <div class="flex items-center justify-between">
-                                <label for="${id}_check" class="font-semibold text-gray-800 cursor-pointer text-sm flex-1">${item}</label>
-                                <input type="checkbox" id="${id}_check" onchange="toggleInputs('${id}')" class="w-5 h-5 accent-red-600 cursor-pointer">
-                            </div>
-                            <div id="${id}_inputs" class="hidden grid grid-cols-5 gap-2 pt-1">
-                                <input type="text" id="${id}_qty" placeholder="Số lượng" class="col-span-2 p-2 border rounded bg-yellow-50 font-semibold text-xs focus:ring-1 focus:ring-red-500">
-                                <input type="text" id="${id}_unit" placeholder="Đơn vị (Hộp/Chai/Thùng)" class="col-span-3 p-2 border rounded bg-gray-50 text-xs">
-                                <input type="text" id="${id}_note" placeholder="Ghi chú thêm (Nếu có)..." class="col-span-5 p-2 border rounded text-gray-500 text-[11px]">
-                            </div>
-                        </div>
-                    `;
-                });
-
-                catHtml += `</div></div>`;
-                container.innerHTML += catHtml;
-            }
-        }
-
-        function toggleInputs(id) {
-            const check = document.getElementById(`${id}_check`);
-            const inputs = document.getElementById(`${id}_inputs`);
-            if (check.checked) {
-                inputs.classList.remove('hidden');
-            } else {
-                inputs.classList.add('hidden');
-            }
-        }
-
-        function filterItems() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            document.querySelectorAll('.item-row').forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(query) ? 'block' : 'none';
+        function App() {
+            const [items, setItems] = useState(() => {
+                const saved = localStorage.getItem('ikura_inventory');
+                return saved ? JSON.parse(saved) : INITIAL_ITEMS;
             });
-        }
 
-        function generateOrder() {
-            let orderList = [];
-            
-            for (const [cat, items] of Object.entries(menuData)) {
-                items.forEach((item, index) => {
-                    const id = `item_${cat.replace(/\s+/g, '')}_${index}`;
-                    const check = document.getElementById(`${id}_check`);
-                    
-                    if (check && check.checked) {
-                        const qty = document.getElementById(`${id}_qty`).value.trim() || "1";
-                        const unit = document.getElementById(`${id}_unit`).value.trim();
-                        const note = document.getElementById(`${id}_note`).value.trim();
-                        
-                        let line = `• ${item}: ${qty} ${unit}`.trim();
-                        if (note) line += ` (${note})`;
-                        orderList.push(line);
+            const [suppliers, setSuppliers] = useState(() => {
+                const saved = localStorage.getItem('ikura_suppliers');
+                return saved ? JSON.parse(saved) : DEFAULT_SUPPLIERS;
+            });
+
+            const [adminPin, setAdminPin] = useState(() => {
+                return localStorage.getItem('ikura_admin_pin') || '1234';
+            });
+
+            const [isAdmin, setIsAdmin] = useState(false);
+            const [activeTab, setActiveTab] = useState('check');
+            const [selectedCategory, setSelectedCategory] = useState('Tất cả');
+            const [searchQuery, setSearchQuery] = useState('');
+            const [copiedSupplier, setCopiedSupplier] = useState(null);
+            const [showPinModal, setShowPinModal] = useState(false);
+            const [inputPin, setInputPin] = useState('');
+            const [pinError, setPinError] = useState('');
+
+            // Modal state
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [editingItem, setEditingItem] = useState(null);
+            const [formData, setFormData] = useState({ name: '', category: 'Tee & Basis', unit: 'Flasche', soll: 5, supplier: 'Asia Import' });
+
+            useEffect(() => {
+                localStorage.setItem('ikura_inventory', JSON.stringify(items));
+            }, [items]);
+
+            useEffect(() => {
+                localStorage.setItem('ikura_suppliers', JSON.stringify(suppliers));
+            }, [suppliers]);
+
+            useEffect(() => {
+                if (window.lucide) window.lucide.createIcons();
+            });
+
+            const handleVerifyPin = (e) => {
+                e.preventDefault();
+                if (inputPin === adminPin) {
+                    setIsAdmin(true);
+                    setShowPinModal(false);
+                    setInputPin('');
+                    setPinError('');
+                } else {
+                    setPinError('Mã PIN không đúng!');
+                }
+            };
+
+            const handleTabChange = (tab) => {
+                if ((tab === 'order' || tab === 'manage') && !isAdmin) {
+                    setShowPinModal(true);
+                } else {
+                    setActiveTab(tab);
+                }
+            };
+
+            const updateCurrent = (id, delta) => {
+                setItems(prev => prev.map(item => {
+                    if (item.id === id) {
+                        const newVal = Math.max(0, item.current + delta);
+                        return { ...item, current: newVal };
                     }
+                    return item;
+                }));
+            };
+
+            const handleSaveItem = (e) => {
+                e.preventDefault();
+                if (!formData.name.trim()) return;
+
+                if (editingItem) {
+                    setItems(prev => prev.map(i => i.id === editingItem.id ? { ...i, ...formData, soll: Number(formData.soll) } : i));
+                } else {
+                    const newItem = {
+                        id: Date.now().toString(),
+                        ...formData,
+                        soll: Number(formData.soll),
+                        current: Number(formData.soll)
+                    };
+                    setItems(prev => [...prev, newItem]);
+                }
+                closeModal();
+            };
+
+            const deleteItem = (id) => {
+                if (window.confirm('Bạn có chắc muốn xóa món này khỏi danh mục?')) {
+                    setItems(prev => prev.filter(i => i.id !== id));
+                }
+            };
+
+            const openModal = (item = null) => {
+                if (!isAdmin) {
+                    setShowPinModal(true);
+                    return;
+                }
+                if (item) {
+                    setEditingItem(item);
+                    setFormData({ name: item.name, category: item.category, unit: item.unit, soll: item.soll, supplier: item.supplier });
+                } else {
+                    setEditingItem(null);
+                    setFormData({ name: '', category: 'Tee & Basis', unit: 'Flasche', soll: 5, supplier: suppliers[0] || 'Asia Import' });
+                }
+                setIsModalOpen(true);
+            };
+
+            const closeModal = () => {
+                setIsModalOpen(false);
+                setEditingItem(null);
+            };
+
+            const handleRestockSupplier = (supplierName) => {
+                setItems(prev => prev.map(item => {
+                    if (item.supplier === supplierName && item.current < item.soll) {
+                        return { ...item, current: item.soll };
+                    }
+                    return item;
+                }));
+            };
+
+            const copyToClipboard = (supplierName, missingItems) => {
+                let msg = `Hallo ${supplierName},\n\nhier ist die Getränkebestellung für IKURA Restaurant (Eisleben):\n\n`;
+                missingItems.forEach(item => {
+                    const need = item.soll - item.current;
+                    msg += `• ${item.name}: ${need} ${item.unit}\n`;
                 });
-            }
+                msg += `\nVielen Dank!\nIKURA Restaurant Eisleben`;
 
-            if (orderList.length === 0) {
-                alert('Vui lòng tích chọn ít nhất 1 món thiếu!');
-                return;
-            }
+                navigator.clipboard.writeText(msg);
+                setCopiedSupplier(supplierName);
+                setTimeout(() => setCopiedSupplier(null), 2000);
+            };
 
-            let text = "🧾 BESTELLLISTE IKURA BAR - " + new Date().toLocaleDateString('de-DE') + "\n";
-            text += "-----------------------------------\n";
-            text += orderList.join('\n');
-
-            document.getElementById('orderText').value = text;
-            document.getElementById('resultModal').classList.remove('hidden');
-        }
-
-        function copyText() {
-            const text = document.getElementById('orderText');
-            text.select();
-            document.execCommand('copy');
-            alert('Đã copy danh sách! Anh gửi trực tiếp qua WhatsApp / Zalo nhé.');
-        }
-
-        function resetForm() {
-            if (confirm("Anh có muốn bỏ chọn tất cả các món không?")) {
-                renderInventory();
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.add('hidden');
-        }
-
-        // QUẢN LÝ MENU (THÊM / XÓA)
-        function toggleManageModal() {
-            const modal = document.getElementById('manageModal');
-            if (modal.classList.contains('hidden')) {
-                renderManageList();
-                modal.classList.remove('hidden');
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function populateCatDropdown() {
-            const select = document.getElementById('newCat');
-            select.innerHTML = '';
-            Object.keys(menuData).forEach(cat => {
-                select.innerHTML += `<option value="${cat}">${cat}</option>`;
+            const filteredItems = items.filter(i => {
+                const matchCat = selectedCategory === 'Tất cả' || i.category === selectedCategory;
+                const matchSearch = i.name.toLowerCase().includes(searchQuery.toLowerCase()) || i.supplier.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchCat && matchSearch;
             });
-        }
 
-        function renderManageList() {
-            const list = document.getElementById('manageList');
-            list.innerHTML = '';
-            
-            for (const [cat, items] of Object.entries(menuData)) {
-                items.forEach((item, index) => {
-                    list.innerHTML += `
-                        <div class="flex justify-between items-center p-2 bg-gray-50 border rounded">
-                            <span class="truncate font-medium">${item} <i class="text-[10px] text-gray-400">(${cat})</i></span>
-                            <button onclick="deleteItem('${cat}', ${index})" class="text-red-500 hover:text-red-700 ml-2 font-bold"><i class="fa-solid fa-trash"></i></button>
+            const missingItemsTotal = items.filter(i => i.current < i.soll);
+
+            return (
+                <div className="min-h-screen bg-slate-900 text-slate-100 font-sans pb-28">
+                    {/* Header */}
+                    <header className="bg-slate-800 border-b border-slate-700 sticky top-0 z-30 px-4 py-3 shadow-md flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="bg-emerald-500 text-slate-950 font-extrabold px-2.5 py-1 rounded-lg text-sm tracking-wider">
+                                IKURA
+                            </div>
+                            <div>
+                                <h1 className="font-bold text-base leading-tight">Quản Lý Kho Đồ Uống</h1>
+                                <p className="text-xs text-slate-400">IKURA Restaurant Eisleben</p>
+                            </div>
                         </div>
-                    `;
-                });
-            }
+
+                        <div className="flex items-center gap-2">
+                            {isAdmin ? (
+                                <button 
+                                    onClick={() => setIsAdmin(false)}
+                                    className="bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1"
+                                >
+                                    👑 Admin Active
+                                </button>
+                            ) : (
+                                <button 
+                                    onClick={() => setShowPinModal(true)}
+                                    className="bg-slate-700 hover:bg-slate-600 text-slate-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1"
+                                >
+                                    🔒 Mở Admin
+                                </button>
+                            )}
+
+                            {isAdmin && (
+                                <button 
+                                    onClick={() => openModal()}
+                                    className="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-lg text-xs font-medium flex items-center gap-1 transition"
+                                >
+                                    + Thêm món
+                                </button>
+                            )}
+                        </div>
+                    </header>
+
+                    {/* Main Content */}
+                    <main className="max-w-3xl mx-auto px-4 py-4">
+                        {/* TAB 1: KIỂM KHO */}
+                        {activeTab === 'check' && (
+                            <div className="space-y-4">
+                                {/* Search Bar */}
+                                <input 
+                                    type="text" 
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    placeholder="🔍 Tìm nhanh món hoặc nhà cung cấp..."
+                                    className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                                />
+
+                                {/* Category Filters */}
+                                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                                    {CATEGORIES.map(cat => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setSelectedCategory(cat)}
+                                            className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition ${
+                                                selectedCategory === cat 
+                                                    ? 'bg-emerald-500 text-slate-950 font-bold' 
+                                                    : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                            }`}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+
+                                {/* Item List */}
+                                <div className="grid gap-2.5">
+                                    {filteredItems.map(item => {
+                                        const isShort = item.current < item.soll;
+                                        const missing = item.soll - item.current;
+                                        return (
+                                            <div 
+                                                key={item.id}
+                                                className={`bg-slate-800 rounded-xl p-3 border transition flex items-center justify-between gap-3 ${
+                                                    isShort ? 'border-amber-500/50 bg-slate-800/90' : 'border-slate-700/60'
+                                                }`}
+                                            >
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold text-sm text-white truncate">{item.name}</span>
+                                                        {isShort && (
+                                                            <span className="bg-amber-500/20 text-amber-400 text-[10px] px-2 py-0.5 rounded-md font-bold">
+                                                                Thiếu {missing}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-xs text-slate-400 mt-1 flex items-center gap-2">
+                                                        <span>Đơn vị: {item.unit}</span>
+                                                        <span>•</span>
+                                                        <span>Đầy kho: {item.soll}</span>
+                                                        <span>•</span>
+                                                        <span className="text-emerald-400">{item.supplier}</span>
+                                                    </div>
+                                                </div>
+
+                                                {/* Counter Buttons */}
+                                                <div className="flex items-center gap-1 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700">
+                                                    <button
+                                                        onClick={() => updateCurrent(item.id, -1)}
+                                                        className="w-10 h-10 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xl flex items-center justify-center active:scale-95 transition"
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span className={`w-9 text-center font-extrabold text-base ${isShort ? 'text-amber-400' : 'text-emerald-400'}`}>
+                                                        {item.current}
+                                                    </span>
+                                                    <button
+                                                        onClick={() => updateCurrent(item.id, 1)}
+                                                        className="w-10 h-10 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xl flex items-center justify-center active:scale-95 transition"
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* TAB 2: ĐẶT HÀNG (ADMIN ONLY) */}
+                        {activeTab === 'order' && isAdmin && (
+                            <div className="space-y-4">
+                                <div className="bg-slate-800 rounded-xl p-4 border border-slate-700 flex items-center justify-between">
+                                    <div>
+                                        <h2 className="font-bold text-sm">Tổng hợp đơn đặt hàng</h2>
+                                        <p className="text-xs text-slate-400 mt-0.5">Tự động gom đơn theo từng Nhà cung cấp</p>
+                                    </div>
+                                    <span className="bg-amber-500/20 text-amber-400 font-bold text-xs px-3 py-1 rounded-lg border border-amber-500/30">
+                                        {missingItemsTotal.length} món cần đặt
+                                    </span>
+                                </div>
+
+                                {suppliers.map(supplier => {
+                                    const supplierMissing = items.filter(i => i.supplier === supplier && i.current < i.soll);
+                                    if (supplierMissing.length === 0) return null;
+
+                                    return (
+                                        <div key={supplier} className="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden">
+                                            <div className="bg-slate-700/50 px-4 py-2.5 border-b border-slate-700 flex items-center justify-between">
+                                                <span className="font-bold text-sm text-emerald-400">{supplier}</span>
+                                                <span className="text-xs text-slate-400">{supplierMissing.length} mặt hàng</span>
+                                            </div>
+
+                                            <div className="p-4 space-y-2">
+                                                {supplierMissing.map(item => (
+                                                    <div key={item.id} className="flex justify-between text-xs py-1.5 border-b border-slate-700/40 last:border-0">
+                                                        <span className="text-slate-200 font-medium">{item.name}</span>
+                                                        <span className="font-bold text-amber-400">
+                                                            Cần đặt: {item.soll - item.current} {item.unit}
+                                                        </span>
+                                                    </div>
+                                                ))}
+
+                                                <div className="pt-3 flex gap-2">
+                                                    <button
+                                                        onClick={() => copyToClipboard(supplier, supplierMissing)}
+                                                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 px-3 rounded-lg transition"
+                                                    >
+                                                        {copiedSupplier === supplier ? '✅ Đã chép tin nhắn!' : '📋 Copy WhatsApp (DE)'}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleRestockSupplier(supplier)}
+                                                        className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-medium px-3 py-2.5 rounded-lg transition"
+                                                    >
+                                                        Đã nhập kho
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+
+                        {/* TAB 3: DANH MỤC & CÀI ĐẶT (ADMIN ONLY) */}
+                        {activeTab === 'manage' && isAdmin && (
+                            <div className="space-y-4">
+                                <div className="bg-slate-800 rounded-xl border border-slate-700 divide-y divide-slate-700">
+                                    {items.map(item => (
+                                        <div key={item.id} className="p-3 flex items-center justify-between">
+                                            <div>
+                                                <p className="font-semibold text-sm text-white">{item.name}</p>
+                                                <p className="text-xs text-slate-400">
+                                                    {item.category} • Đầy kho: {item.soll} {item.unit} • {item.supplier}
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-2">
+                                                <button onClick={() => openModal(item)} className="p-2 text-slate-400 hover:text-emerald-400">✏️</button>
+                                                <button onClick={() => deleteItem(item.id)} className="p-2 text-slate-400 hover:text-rose-400">🗑️</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </main>
+
+                    {/* Bottom Navigation */}
+                    <nav className="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 px-4 py-2.5 z-30">
+                        <div className="max-w-md mx-auto flex justify-around text-xs font-medium">
+                            <button
+                                onClick={() => handleTabChange('check')}
+                                className={`flex flex-col items-center py-1 ${activeTab === 'check' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}
+                            >
+                                📋 1. Kiểm Kho
+                            </button>
+                            <button
+                                onClick={() => handleTabChange('order')}
+                                className={`flex flex-col items-center py-1 ${activeTab === 'order' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}
+                            >
+                                🛒 2. Đặt Hàng {!isAdmin && '🔒'}
+                            </button>
+                            <button
+                                onClick={() => handleTabChange('manage')}
+                                className={`flex flex-col items-center py-1 ${activeTab === 'manage' ? 'text-emerald-400 font-bold' : 'text-slate-400'}`}
+                            >
+                                ⚙️ 3. Danh Mục {!isAdmin && '🔒'}
+                            </button>
+                        </div>
+                    </nav>
+
+                    {/* PIN MODAL */}
+                    {showPinModal && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xs p-5 space-y-4 shadow-2xl text-center">
+                                <h3 className="font-bold text-base text-white">🔒 Nhập Mã PIN Admin</h3>
+                                <p className="text-xs text-slate-400">Mặc định: <code className="text-emerald-400 bg-slate-900 px-1.5 py-0.5 rounded">1234</code></p>
+                                
+                                <form onSubmit={handleVerifyPin} className="space-y-3">
+                                    <input 
+                                        type="password" 
+                                        maxLength="6"
+                                        value={inputPin}
+                                        onChange={e => setInputPin(e.target.value)}
+                                        placeholder="••••"
+                                        className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-center text-xl tracking-widest text-white focus:border-emerald-500 outline-none"
+                                        autoFocus
+                                    />
+                                    {pinError && <p className="text-xs text-rose-400">{pinError}</p>}
+
+                                    <div className="flex gap-2">
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setShowPinModal(false)}
+                                            className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-2.5 rounded-xl font-medium text-xs"
+                                        >
+                                            Hủy
+                                        </button>
+                                        <button 
+                                            type="submit" 
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-2.5 rounded-xl font-bold text-xs"
+                                        >
+                                            Xác nhận
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MODAL ADD / EDIT ITEM */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                            <div className="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl">
+                                <h3 className="font-bold text-base text-white">
+                                    {editingItem ? 'Sửa thông tin món' : 'Thêm đồ uống mới'}
+                                </h3>
+
+                                <form onSubmit={handleSaveItem} className="space-y-3 text-xs">
+                                    <div>
+                                        <label className="block text-slate-400 mb-1">Tên món đồ uống / nguyên liệu</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={formData.name}
+                                            onChange={e => setFormData({ ...formData, name: e.target.value })}
+                                            className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none"
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-slate-400 mb-1">Danh mục</label>
+                                            <select
+                                                value={formData.category}
+                                                onChange={e => setFormData({ ...formData, category: e.target.value })}
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none"
+                                            >
+                                                {CATEGORIES.filter(c => c !== 'Tất cả').map(c => (
+                                                    <option key={c} value={c}>{c}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-slate-400 mb-1">Đơn vị tính</label>
+                                            <input
+                                                type="text"
+                                                required
+                                                value={formData.unit}
+                                                onChange={e => setFormData({ ...formData, unit: e.target.value })}
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-slate-400 mb-1">Mức đầy kho (Soll)</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                required
+                                                value={formData.soll}
+                                                onChange={e => setFormData({ ...formData, soll: e.target.value })}
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-slate-400 mb-1">Nhà cung cấp</label>
+                                            <select
+                                                value={formData.supplier}
+                                                onChange={e => setFormData({ ...formData, supplier: e.target.value })}
+                                                className="w-full bg-slate-900 border border-slate-700 rounded-xl p-3 text-white outline-none"
+                                            >
+                                                {suppliers.map(s => (
+                                                    <option key={s} value={s}>{s}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-2 flex gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={closeModal}
+                                            className="flex-1 bg-slate-700 hover:bg-slate-600 text-slate-300 py-3 rounded-xl font-medium"
+                                        >
+                                            Hủy
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold"
+                                        >
+                                            Lưu thông tin
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
         }
 
-        function addNewItem() {
-            const cat = document.getElementById('newCat').value;
-            const name = document.getElementById('newName').value.trim();
-            if (!name) return alert('Vui lòng nhập tên món!');
-            
-            menuData[cat].push(name);
-            localStorage.setItem('ikura_menu', JSON.stringify(menuData));
-            document.getElementById('newName').value = '';
-            
-            renderManageList();
-            renderInventory();
-            alert('Đã thêm món mới vào menu thành công!');
-        }
-
-        function deleteItem(cat, index) {
-            if (confirm(`Xóa món "${menuData[cat][index]}" khỏi menu?`)) {
-                menuData[cat].splice(index, 1);
-                localStorage.setItem('ikura_menu', JSON.stringify(menuData));
-                renderManageList();
-                renderInventory();
-            }
-        }
-
-        initApp();
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
     </script>
 </body>
 </html>
