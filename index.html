@@ -12,20 +12,19 @@
     <!-- Babel CDN -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        /* Chống zoom khi nhấp đúp trên điện thoại & Tối ưu touch-action */
         button, input, select { touch-action: manipulation; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
 
         const EXCEL_ITEMS = [
-            // ==================== BAR / GETRÄNKE ====================
+            // BAR / GETRÄNKE
             { id: 'b1', dept: 'Bar', name: 'Servietten', category: 'Kellner / Service', unit: 'Packung', soll: 5, current: 5, supplier: 'Selgros' },
             { id: 'b2', dept: 'Bar', name: 'Kerzen', category: 'Kellner / Service', unit: 'Packung', soll: 2, current: 2, supplier: 'Selgros' },
             { id: 'b3', dept: 'Bar', name: 'Toilette Papier', category: 'Kellner / Service', unit: 'Karton', soll: 3, current: 3, supplier: 'Selgros' },
@@ -58,4 +57,105 @@
             { id: 'b26', dept: 'Bar', name: 'Erdbeer Püree', category: 'Früchte & Püree', unit: 'Flasche', soll: 4, current: 4, supplier: 'Hamberger' },
             { id: 'b27', dept: 'Bar', name: 'Mango Püree', category: 'Früchte & Püree', unit: 'Flasche', soll: 4, current: 4, supplier: 'Hamberger' },
             { id: 'b28', dept: 'Bar', name: 'Litschi (geschält)', category: 'Früchte & Püree', unit: 'Dose', soll: 6, current: 6, supplier: 'Asia Import' },
-            { id: 'b
+            { id: 'b29', dept: 'Bar', name: 'Limetten', category: 'Früchte & Püree', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'b30', dept: 'Bar', name: 'Orange', category: 'Früchte & Püree', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'b31', dept: 'Bar', name: 'Minze', category: 'Früchte & Püree', unit: 'Packung', soll: 5, current: 5, supplier: 'Selgros' },
+
+            { id: 'b32', dept: 'Bar', name: 'Zitronengras', category: 'Kräuter & Saft', unit: 'Packung', soll: 3, current: 3, supplier: 'Asia Import' },
+            { id: 'b33', dept: 'Bar', name: 'Rosenblätter (getrocknet)', category: 'Kräuter & Saft', unit: 'Packung', soll: 2, current: 2, supplier: 'Asia Import' },
+            { id: 'b34', dept: 'Bar', name: 'Limettensaft', category: 'Kräuter & Saft', unit: 'Flasche', soll: 6, current: 6, supplier: 'Selgros' },
+            { id: 'b35', dept: 'Bar', name: 'Chanh Muối (Yuzu)', category: 'Kräuter & Saft', unit: 'Glas', soll: 4, current: 4, supplier: 'Asia Import' },
+
+            { id: 'b36', dept: 'Bar', name: 'Choya Pflaumenwein', category: 'Alkohol', unit: 'Flasche', soll: 6, current: 6, supplier: 'Asia Import' },
+            { id: 'b37', dept: 'Bar', name: 'Choya Reiswein', category: 'Alkohol', unit: 'Flasche', soll: 6, current: 6, supplier: 'Asia Import' },
+            { id: 'b38', dept: 'Bar', name: 'Wodka', category: 'Alkohol', unit: 'Flasche', soll: 4, current: 4, supplier: 'Selgros' },
+            { id: 'b39', dept: 'Bar', name: 'Jägermeister', category: 'Alkohol', unit: 'Flasche', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'b40', dept: 'Bar', name: 'Tequila', category: 'Alkohol', unit: 'Flasche', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'b41', dept: 'Bar', name: 'Jim Beam', category: 'Alkohol', unit: 'Flasche', soll: 3, current: 3, supplier: 'Selgros' },
+
+            { id: 'b42', dept: 'Bar', name: 'Mochi Eis - Matcha', category: 'Dessert', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'b43', dept: 'Bar', name: 'Mochi Eis - Mango', category: 'Dessert', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'b44', dept: 'Bar', name: 'Mochi Eis - Vanille', category: 'Dessert', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'b45', dept: 'Bar', name: 'Mochi Eis - Schoko', category: 'Dessert', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'b46', dept: 'Bar', name: 'Mochi Eis - Erdbeer', category: 'Dessert', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'b47', dept: 'Bar', name: 'Mochi Eis - Kokos', category: 'Dessert', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'b48', dept: 'Bar', name: 'Vanille Eis', category: 'Dessert', unit: 'Eimer', soll: 2, current: 2, supplier: 'Selgros' },
+
+            { id: 'b49', dept: 'Bar', name: 'Boboq Sirup Erdbeer', category: 'Boboq Sirup', unit: 'Flasche', soll: 3, current: 3, supplier: 'Boboq' },
+            { id: 'b50', dept: 'Bar', name: 'Boboq Sirup Mango', category: 'Boboq Sirup', unit: 'Flasche', soll: 3, current: 3, supplier: 'Boboq' },
+            { id: 'b51', dept: 'Bar', name: 'Boboq Sirup Pfirsich', category: 'Boboq Sirup', unit: 'Flasche', soll: 3, current: 3, supplier: 'Boboq' },
+            { id: 'b52', dept: 'Bar', name: 'Boboq Sirup Litschi', category: 'Boboq Sirup', unit: 'Flasche', soll: 3, current: 3, supplier: 'Boboq' },
+            { id: 'b53', dept: 'Bar', name: 'Boboq Sirup Honigmelone', category: 'Boboq Sirup', unit: 'Flasche', soll: 3, current: 3, supplier: 'Boboq' },
+            { id: 'b54', dept: 'Bar', name: 'Boboq Sirup Brauner Zucker', category: 'Boboq Sirup', unit: 'Flasche', soll: 4, current: 4, supplier: 'Boboq' },
+
+            { id: 'b55', dept: 'Bar', name: 'Kristallkugel Litschi', category: 'Boboq Topping', unit: 'Eimer', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b56', dept: 'Bar', name: 'Kristallkugel Erdbeer', category: 'Boboq Topping', unit: 'Eimer', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b57', dept: 'Bar', name: 'Kristallkugel Mango', category: 'Boboq Topping', unit: 'Eimer', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b58', dept: 'Bar', name: 'Kristallkugel Pfirsich', category: 'Boboq Topping', unit: 'Eimer', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b59', dept: 'Bar', name: 'Kristall Brauner Zucker', category: 'Boboq Topping', unit: 'Eimer', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b60', dept: 'Bar', name: 'Tapioka', category: 'Boboq Topping', unit: 'Karton', soll: 3, current: 3, supplier: 'Boboq' },
+
+            { id: 'b61', dept: 'Bar', name: 'Kaffeeweiser', category: 'Boboq Mixing', unit: 'Sack', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b62', dept: 'Bar', name: 'Fructose', category: 'Boboq Mixing', unit: 'Kanister', soll: 2, current: 2, supplier: 'Boboq' },
+            { id: 'b63', dept: 'Bar', name: 'Passionsfrucht Püree', category: 'Boboq Mixing', unit: 'Flasche', soll: 4, current: 4, supplier: 'Boboq' },
+            { id: 'b64', dept: 'Bar', name: 'Geröstete Oolong-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
+            { id: 'b65', dept: 'Bar', name: 'Jasmin Grüner-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
+            { id: 'b66', dept: 'Bar', name: 'Earl-Grey-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
+
+            { id: 'b67', dept: 'Bar', name: '700ml Becher', category: 'Verpackung Bar', unit: 'Karton', soll: 5, current: 5, supplier: 'Boboq' },
+            { id: 'b68', dept: 'Bar', name: '500ml Becher', category: 'Verpackung Bar', unit: 'Karton', soll: 5, current: 5, supplier: 'Boboq' },
+            { id: 'b69', dept: 'Bar', name: 'Becher Deckel', category: 'Verpackung Bar', unit: 'Karton', soll: 5, current: 5, supplier: 'Boboq' },
+            { id: 'b70', dept: 'Bar', name: 'Strohhalme 1', category: 'Verpackung Bar', unit: 'Karton', soll: 3, current: 3, supplier: 'Boboq' },
+
+            // BẾP / FOOD
+            { id: 'f1', dept: 'Küche', name: 'Pak Choi (Cải thìa)', category: 'Frische Gemüse', unit: 'Kiste', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f2', dept: 'Küche', name: 'Gurke 300–400g NL (Dưa leo)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f3', dept: 'Küche', name: 'Rotkohl (Bắp cải tím)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f4', dept: 'Küche', name: 'Lauchzwiebel (Hành lá)', category: 'Frische Gemüse', unit: 'Bund', soll: 5, current: 5, supplier: 'Selgros' },
+            { id: 'f5', dept: 'Küche', name: 'Cherrytomaten (Cà chua bi)', category: 'Frische Gemüse', unit: 'Kiste', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f6', dept: 'Küche', name: 'Rettich weiß (Củ cải trắng)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f7', dept: 'Küche', name: 'Zucchini grün (Bí ngòi xanh)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f8', dept: 'Küche', name: 'Knoblauch 1kg (Tỏi 1kg)', category: 'Frische Gemüse', unit: 'Netz', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f9', dept: 'Küche', name: 'Eisbergsalat (Xà lách Iceberg)', category: 'Frische Gemüse', unit: 'Kiste', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f10', dept: 'Küche', name: 'Pflücksalat Mix 125g (Rau salad mix)', category: 'Frische Gemüse', unit: 'Packung', soll: 4, current: 4, supplier: 'Selgros' },
+            { id: 'f11', dept: 'Küche', name: 'Rucola 125g (Rau rocket)', category: 'Frische Gemüse', unit: 'Packung', soll: 4, current: 4, supplier: 'Selgros' },
+            { id: 'f12', dept: 'Küche', name: 'Champignons (Nấm mỡ)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f13', dept: 'Küche', name: 'Schnittlauch 200g (Hẹ)', category: 'Frische Gemüse', unit: 'Packung', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f14', dept: 'Küche', name: 'Kartoffeln thick (Khoai tây lớn)', category: 'Frische Gemüse', unit: 'Sack', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f15', dept: 'Küche', name: 'Gemüsezwiebel (Hành tây lớn)', category: 'Frische Gemüse', unit: 'Sack', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f16', dept: 'Küche', name: 'Brokkoli (Bông cải xanh)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f17', dept: 'Küche', name: 'Paprika rot (Ớt chuông đỏ)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f18', dept: 'Küche', name: 'Spargel grün (Măng tây xanh)', category: 'Frische Gemüse', unit: 'Bund', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f19', dept: 'Küche', name: 'Avocado Hass Peru (Bơ Hass)', category: 'Frische Gemüse', unit: 'Kiste', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f20', dept: 'Küche', name: 'Karotten/Möhren thick (Cà rốt lớn)', category: 'Frische Gemüse', unit: 'Sack', soll: 2, current: 2, supplier: 'Selgros' },
+
+            { id: 'f21', dept: 'Küche', name: 'Thunfisch Chunks i. Öl (Cá ngừ hộp)', category: 'Frische Ware', unit: 'Dose', soll: 6, current: 6, supplier: 'Selgros' },
+            { id: 'f22', dept: 'Küche', name: 'Sardinen ganz (Cá mòi)', category: 'Frische Ware', unit: 'Dose', soll: 6, current: 6, supplier: 'Selgros' },
+            { id: 'f23', dept: 'Küche', name: 'Lachsfilet frisch (Phi lê cá hồi tươi)', category: 'Frische Ware', unit: 'Kg', soll: 10, current: 10, supplier: 'Hamberger' },
+            { id: 'f24', dept: 'Küche', name: 'Garnelen 16/20 (Tôm 16/20)', category: 'Frische Ware', unit: 'Kg', soll: 5, current: 5, supplier: 'Asia Import' },
+            { id: 'f25', dept: 'Küche', name: 'Garnelen 26/30 (Tôm 26/30)', category: 'Frische Ware', unit: 'Kg', soll: 5, current: 5, supplier: 'Asia Import' },
+            { id: 'f26', dept: 'Küche', name: 'Hähnchenbrust (Ức gà)', category: 'Frische Ware', unit: 'Kg', soll: 8, current: 8, supplier: 'Selgros' },
+            { id: 'f27', dept: 'Küche', name: 'Rindfleisch (Thịt bò)', category: 'Frische Ware', unit: 'Kg', soll: 6, current: 6, supplier: 'Selgros' },
+            { id: 'f28', dept: 'Küche', name: 'Schweinefleisch (Thịt heo)', category: 'Frische Ware', unit: 'Kg', soll: 5, current: 5, supplier: 'Selgros' },
+
+            { id: 'f29', dept: 'Küche', name: 'Teppichmuschel TK (Nghêu đông lạnh)', category: 'Tiefkühlware', unit: 'Packung', soll: 4, current: 4, supplier: 'Asia Import' },
+
+            { id: 'f30', dept: 'Küche', name: 'Sushi Reis 10kg (Gạo sushi 10kg)', category: 'Trockenware', unit: 'Sack', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'f31', dept: 'Küche', name: 'Jasmin Reis (Gạo jasmine)', category: 'Trockenware', unit: 'Sack', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'f32', dept: 'Küche', name: 'Nori Blätter (Rong biển Nori)', category: 'Trockenware', unit: 'Karton', soll: 3, current: 3, supplier: 'Asia Import' },
+            { id: 'f33', dept: 'Küche', name: 'Weizenmehl 405 1kg (Bột mì 405)', category: 'Trockenware', unit: 'Packung', soll: 5, current: 5, supplier: 'Selgros' },
+            { id: 'f34', dept: 'Küche', name: 'Röstzwiebeln 2,5kg (Hành phi)', category: 'Trockenware', unit: 'Dose', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f35', dept: 'Küche', name: 'Bohnen grün TK 2,5kg (Đậu que đông lạnh)', category: 'Trockenware', unit: 'Beutel', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f36', dept: 'Küche', name: 'Zuckererbsen (Đậu Hà Lan ngọt)', category: 'Trockenware', unit: 'Packung', soll: 3, current: 3, supplier: 'Selgros' },
+            { id: 'f37', dept: 'Küche', name: 'Knoblauch granuliert (Tỏi bột)', category: 'Trockenware', unit: 'Dose', soll: 2, current: 2, supplier: 'Selgros' },
+            { id: 'f38', dept: 'Küche', name: 'Pfeffer weiß gemahlen (Tiêu trắng xay)', category: 'Trockenware', unit: 'Dose', soll: 2, current: 2, supplier: 'Selgros' },
+
+            { id: 'f39', dept: 'Küche', name: 'Philadelphia 70% 195g (Phô mai kem)', category: 'Milchprodukte', unit: 'Packung', soll: 10, current: 10, supplier: 'Selgros' },
+            { id: 'f40', dept: 'Küche', name: 'Mozzarella 45% Galbani 125g', category: 'Milchprodukte', unit: 'Packung', soll: 10, current: 10, supplier: 'Selgros' },
+            { id: 'f41', dept: 'Küche', name: 'Koko-Nu Milch 17% Aroy-D (Cốt dừa)', category: 'Milchprodukte', unit: 'Dose', soll: 12, current: 12, supplier: 'Asia Import' },
+            { id: 'f42', dept: 'Küche', name: 'Schlagsahne 1L (Kem tươi 1L)', category: 'Milchprodukte', unit: 'Packung', soll: 6, current: 6, supplier: 'Selgros' },
+
+            { id: 'f43', dept: 'Küche', name: 'Sojasauce 5L (Nước tương 5L)', category: 'Saucen & Öl', unit: 'Kanister', soll: 2, current: 2, supplier: 'Asia Import' },
+            { id: 'f44', dept: 'Küche', name: 'Teriyaki Sauce (Sốt Teriyaki)', category: 'Saucen & Öl', unit: 'Flasche', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'f45', dept: 'Küche', name: 'Unagi Sauce (Sốt Unagi)', category: 'Saucen & Öl', unit: 'Flasche', soll: 4, current: 4, supplier: 'Asia Import' },
+            { id: 'f46',
