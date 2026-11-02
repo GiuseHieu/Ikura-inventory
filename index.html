@@ -19,6 +19,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
+    <!-- html2pdf.js CDN để xuất PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <style>
         html, body {
             max-width: 100vw;
@@ -49,10 +52,15 @@
             measurementId: "G-93838PL9HQ"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
+        let db = null;
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+        } catch(e) {
+            console.error("Firebase Init Error:", e);
         }
-        const db = firebase.database();
 
         const EXCEL_ITEMS = [
             // BAR / GETRÄNKE
@@ -118,7 +126,7 @@
             { id: 'b60', dept: 'Bar', name: 'Tapioka', category: 'Boboq Topping', unit: 'Karton', soll: 3, current: 3, supplier: 'Boboq' },
             { id: 'b61', dept: 'Bar', name: 'Kaffeeweiser', category: 'Boboq Mixing', unit: 'Sack', soll: 2, current: 2, supplier: 'Boboq' },
             { id: 'b62', dept: 'Bar', name: 'Fructose', category: 'Boboq Mixing', unit: 'Kanister', soll: 2, current: 2, supplier: 'Boboq' },
-            { id: 'f63', dept: 'Bar', name: 'Passionsfrucht Püree', category: 'Boboq Mixing', unit: 'Flasche', soll: 4, current: 4, supplier: 'Boboq' },
+            { id: 'b63', dept: 'Bar', name: 'Passionsfrucht Püree', category: 'Boboq Mixing', unit: 'Flasche', soll: 4, current: 4, supplier: 'Boboq' },
             { id: 'b64', dept: 'Bar', name: 'Geröstete Oolong-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
             { id: 'b65', dept: 'Bar', name: 'Jasmin Grüner-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
             { id: 'b66', dept: 'Bar', name: 'Earl-Grey-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
@@ -193,8 +201,15 @@
         const DEFAULT_SUPPLIERS = ['Asia Import', 'Selgros', 'Hamberger', 'Boboq', 'Kaufland', 'Sonstige'];
 
         function App() {
-            const [items, setItems] = useState([]);
+            const [items, setItems] = useState(() => {
+                const localSaved = localStorage.getItem('ikura_inventory_excel');
+                if (localSaved) {
+                    try { return JSON.parse(localSaved); } catch(e){}
+                }
+                return EXCEL_ITEMS;
+            });
             const [loading, setLoading] = useState(true);
+            const [isCloudConnected, setIsCloudConnected] = useState(false);
             const [suppliers] = useState(DEFAULT_SUPPLIERS);
             const [adminPin] = useState(() => localStorage.getItem('ikura_admin_pin') || '1234');
             const [isAdmin, setIsAdmin] = useState(false);
@@ -211,55 +226,80 @@
             const [editingItem, setEditingItem] = useState(null);
             const [formData, setFormData] = useState({ dept: 'Bar', name: '', category: 'Tee & Basis', unit: 'Flasche', soll: 5, supplier: 'Asia Import' });
 
-            // LẮNG NGHE ĐỒNG BỘ DỮ LIỆU TỪ FIREBASE REALTIME
             useEffect(() => {
-                const itemsRef = db.ref('ikura_inventory_items');
-                const listener = itemsRef.on('value', (snapshot) => {
-                    const data = snapshot.val();
+                let isMounted = true;
+                const fallbackTimeout = setTimeout(() => {
+                    if (isMounted && loading) setLoading(false);
+                }, 3500);
 
-                    // Kiểm tra dữ liệu cũ trong localStorage máy này
-                    const localSaved = localStorage.getItem('ikura_inventory_excel');
-                    let localItems = null;
-                    if (localSaved) {
-                        try { localItems = JSON.parse(localSaved); } catch(e){}
-                    }
+                if (db) {
+                    try {
+                        const itemsRef = db.ref('ikura_inventory_items');
+                        itemsRef.on('value', (snapshot) => {
+                            if (!isMounted) return;
+                            clearTimeout(fallbackTimeout);
+                            
+                            const data = snapshot.val();
+                            const localSaved = localStorage.getItem('ikura_inventory_excel');
+                            let localItems = null;
+                            if (localSaved) {
+                                try { localItems = JSON.parse(localSaved); } catch(e){}
+                            }
 
-                    if (data && Array.isArray(data) && data.length > 0) {
-                        setItems(data);
-                    } else {
-                        // TỰ ĐỘNG CHUYỂN: Nếu Cloud trống, ưu tiên lấy dữ liệu đã chỉnh sửa cũ từ thiết bị này!
-                        const initialData = (localItems && localItems.length > 0) ? localItems : EXCEL_ITEMS;
-                        itemsRef.set(initialData);
-                        setItems(initialData);
+                            if (data && Array.isArray(data) && data.length > 0) {
+                                setItems(data);
+                                setIsCloudConnected(true);
+                            } else {
+                                const initialData = (localItems && localItems.length > 0) ? localItems : EXCEL_ITEMS;
+                                itemsRef.set(initialData);
+                                setItems(initialData);
+                                setIsCloudConnected(true);
+                            }
+                            setLoading(false);
+                        }, (error) => {
+                            if (isMounted) {
+                                clearTimeout(fallbackTimeout);
+                                setLoading(false);
+                            }
+                        });
+                    } catch(e) {
+                        clearTimeout(fallbackTimeout);
+                        if (isMounted) setLoading(false);
                     }
+                } else {
+                    clearTimeout(fallbackTimeout);
                     setLoading(false);
-                });
+                }
 
-                return () => itemsRef.off('value', listener);
+                return () => {
+                    isMounted = false;
+                    clearTimeout(fallbackTimeout);
+                };
             }, []);
 
-            // HÀM ĐỒNG BỘ CẬP NHẬT LÊN CLOUD
             const saveToCloud = (newItems) => {
                 setItems(newItems);
-                db.ref('ikura_inventory_items').set(newItems);
+                localStorage.setItem('ikura_inventory_excel', JSON.stringify(newItems));
+                if (db && isCloudConnected) {
+                    try { db.ref('ikura_inventory_items').set(newItems); } catch(e){}
+                }
             };
 
-            // HÀM ÉP TẢI DỮ LIỆU CỦ TỪ MÁY LÊN CLOUD
             const forceUploadLocalToCloud = () => {
                 const localSaved = localStorage.getItem('ikura_inventory_excel');
                 if (localSaved) {
                     try {
                         const localItems = JSON.parse(localSaved);
                         if (localItems && localItems.length > 0) {
-                            if (window.confirm('Bạn có chắc chắn muốn đẩy dữ liệu cũ lưu trên thiết bị này đè lên Cloud không?')) {
+                            if (window.confirm('Bạn có chắc muốn đẩy dữ liệu từ máy này đè lên Cloud không?')) {
                                 saveToCloud(localItems);
-                                alert('✅ Đã đẩy thành công dữ liệu cũ từ thiết bị này lên Cloud Firebase!');
+                                alert('✅ Đã đẩy thành công dữ liệu từ máy này lên Cloud!');
                                 return;
                             }
                         }
                     } catch(e){}
                 }
-                alert('Không tìm thấy dữ liệu cũ nào được lưu trên thiết bị này.');
+                alert('Không tìm thấy dữ liệu cũ trên thiết bị này.');
             };
 
             const currentCategories = ['Tất cả', ...new Set(items.filter(i => selectedDept === 'Tất cả' || i.dept === selectedDept).map(i => i.category))];
@@ -365,6 +405,72 @@
                 setTimeout(() => setCopiedSupplier(null), 2000);
             };
 
+            // HÀM TẠO VÀ XUẤT PDF CÓ KHUNG ĐẸP MẮT
+            const exportSupplierPDF = (supplierName, missingItems) => {
+                const dateStr = new Date().toLocaleDateString('de-DE');
+                const element = document.createElement('div');
+                element.style.padding = '20px';
+                element.style.fontFamily = 'Arial, sans-serif';
+                element.style.color = '#1e293b';
+                element.style.backgroundColor = '#ffffff';
+
+                let tableRows = missingItems.map((item, idx) => `
+                    <tr style="border-bottom: 1px solid #cbd5e1;">
+                        <td style="padding: 8px; border: 1px solid #475569; text-align: center; font-weight: bold;">${idx + 1}</td>
+                        <td style="padding: 8px; border: 1px solid #475569; text-align: center; font-weight: bold; color: ${item.dept === 'Küche' ? '#d97706' : '#7c3aed'};">${item.dept || 'Bar'}</td>
+                        <td style="padding: 8px; border: 1px solid #475569; font-weight: bold; font-size: 13px;">${item.name}</td>
+                        <td style="padding: 8px; border: 1px solid #475569; text-align: center; font-size: 14px; font-weight: font-black; color: #dc2626; background-color: #fef2f2;">${item.soll - item.current}</td>
+                        <td style="padding: 8px; border: 1px solid #475569; text-align: center; font-weight: 600;">${item.unit}</td>
+                    </tr>
+                `).join('');
+
+                element.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #10b981; padding-bottom: 12px; margin-bottom: 16px;">
+                        <div>
+                            <h2 style="margin: 0; font-size: 22px; color: #059669; font-weight: 900; letter-spacing: 1px;">IKURA RESTAURANT</h2>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: 600;">Friedensstraße 2, 06295 Lutherstadt Eisleben</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: #0f172a;">WENIG BESTELLUNG</h3>
+                            <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">Datum: <b>${dateStr}</b></p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 16px; background-color: #f8fafc; padding: 10px 14px; border-radius: 8px; border-left: 4px solid #10b981; font-size: 13px;">
+                        <p style="margin: 0;"><strong>An Lieferant (Đại lý):</strong> <span style="color: #059669; font-weight: bold; font-size: 14px;">${supplierName}</span></p>
+                    </div>
+
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px;">
+                        <thead>
+                            <tr style="background-color: #0f172a; color: #ffffff;">
+                                <th style="padding: 10px 6px; border: 1px solid #0f172a; width: 35px; text-align: center;">Nr.</th>
+                                <th style="padding: 10px 6px; border: 1px solid #0f172a; width: 75px; text-align: center;">Abt.</th>
+                                <th style="padding: 10px 10px; border: 1px solid #0f172a; text-align: left;">Artikel (Tên mặt hàng)</th>
+                                <th style="padding: 10px 6px; border: 1px solid #0f172a; width: 85px; text-align: center;">Menge (Cần)</th>
+                                <th style="padding: 10px 6px; border: 1px solid #0f172a; width: 75px; text-align: center;">Einheit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 30px; font-size: 11px; color: #64748b; text-align: center; border-top: 1px solid #e2e8f0; padding-top: 12px;">
+                        <p style="margin: 0; font-weight: 600;">Vielen Dank für die Zusammenarbeit! | IKURA Restaurant Eisleben</p>
+                    </div>
+                `;
+
+                const opt = {
+                    margin:       8,
+                    filename:     `Bestellung_IKURA_${supplierName}_${dateStr.replace(/\./g, '-')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save();
+            };
+
             const filteredItems = items.filter(i => {
                 const matchDept = selectedDept === 'Tất cả' || i.dept === selectedDept;
                 const matchCat = selectedCategory === 'Tất cả' || i.category === selectedCategory;
@@ -386,7 +492,7 @@
             return (
                 <div className="w-full flex flex-col min-h-screen pb-32 overflow-x-hidden">
                     
-                    {/* TOP HEADER (CỐ ĐỊNH) */}
+                    {/* TOP HEADER */}
                     <header className="bg-slate-900/95 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 px-3 py-2.5 shadow-lg flex items-center justify-between w-full">
                         <div className="flex items-center space-x-2">
                             <div className="bg-emerald-500 text-slate-950 font-black px-2 py-1 rounded-lg text-xs tracking-wider">
@@ -394,10 +500,16 @@
                             </div>
                             <div>
                                 <h1 className="font-bold text-sm leading-none">Quản Lý Kho</h1>
-                                <p className="text-[10px] text-emerald-400 mt-0.5 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                    Cloud Online
-                                </p>
+                                {isCloudConnected ? (
+                                    <p className="text-[10px] text-emerald-400 mt-0.5 flex items-center gap-1 font-semibold">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        Cloud Đồng Bộ
+                                    </p>
+                                ) : (
+                                    <p className="text-[10px] text-amber-400 mt-0.5 flex items-center gap-1 font-semibold">
+                                        ⚠️ Bộ nhớ thiết bị (Offline)
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -569,12 +681,16 @@
                                                     </div>
                                                 ))}
 
-                                                <div className="pt-2 flex gap-2">
-                                                    <button onClick={() => copyToClipboard(supplier, supplierMissing)} className="flex-1 bg-emerald-600 active:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs shadow transition">
-                                                        {copiedSupplier === supplier ? '✅ Đã copy!' : '📋 Copy WhatsApp (DE)'}
+                                                {/* NÚT THAO TÁC CÓ THÊM XUẤT PDF */}
+                                                <div className="pt-2 flex gap-1.5 flex-wrap">
+                                                    <button onClick={() => copyToClipboard(supplier, supplierMissing)} className="flex-1 bg-emerald-600 active:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[11px] shadow transition min-w-[120px]">
+                                                        {copiedSupplier === supplier ? '✅ Đã copy!' : '📋 Copy Text'}
                                                     </button>
-                                                    <button onClick={() => handleRestockSupplier(supplier)} className="bg-slate-800 active:bg-slate-700 text-slate-300 font-medium px-3 py-2.5 rounded-xl text-xs transition shrink-0">
-                                                        Đã nhập kho
+                                                    <button onClick={() => exportSupplierPDF(supplier, supplierMissing)} className="flex-1 bg-blue-600 active:bg-blue-700 text-white font-bold py-2 rounded-xl text-[11px] shadow transition min-w-[110px]">
+                                                        📄 Xuất PDF
+                                                    </button>
+                                                    <button onClick={() => handleRestockSupplier(supplier)} className="bg-slate-800 active:bg-slate-700 text-slate-300 font-medium px-2.5 py-2 rounded-xl text-[11px] transition shrink-0">
+                                                        Đã nhập
                                                     </button>
                                                 </div>
                                             </div>
@@ -587,11 +703,10 @@
                         {/* TAB 3: DANH MỤC & CÀI ĐẶT (ADMIN ONLY) */}
                         {activeTab === 'manage' && isAdmin && (
                             <div className="space-y-3 w-full">
-                                {/* BỔ SUNG NÚT ĐỒNG BỘ THỦ CÔNG DỮ LIỆU CŨ */}
                                 <div className="bg-amber-950/20 border border-amber-500/30 p-3 rounded-2xl flex items-center justify-between gap-2 text-xs">
                                     <div>
                                         <p className="font-bold text-amber-400">Khôi phục dữ liệu từ máy này?</p>
-                                        <p className="text-[10px] text-slate-400 mt-0.5">Đẩy dữ liệu cũ đã chỉnh sửa từ thiết bị này lên Cloud</p>
+                                        <p className="text-[10px] text-slate-400 mt-0.5">Đẩy dữ liệu đã chỉnh sửa từ thiết bị này lên Cloud</p>
                                     </div>
                                     <button onClick={forceUploadLocalToCloud} className="bg-amber-600 active:bg-amber-700 text-white font-bold px-3 py-2 rounded-xl shrink-0 text-xs shadow">
                                         ⬆️ Đẩy lên Cloud
