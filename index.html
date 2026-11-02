@@ -2,18 +2,24 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <!-- Khóa Zoom và khóa chặt khung hình bằng kích thước điện thoại -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no">
     <title>IKURA - Quản Lý Kho Bar & Bếp</title>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- React & ReactDOM CDN -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
     <!-- Babel CDN -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Firebase SDK Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <style>
-        /* Ép mọi thứ không được phép tràn viền ngang */
         html, body {
             max-width: 100vw;
             overflow-x: hidden !important;
@@ -25,14 +31,31 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased selection:bg-emerald-500 selection:text-white min-h-screen">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect } = React;
 
+        // CẤU HÌNH FIREBASE CLOUD CỦA IKURA INVENTORY
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0Fw7gjowoRkX_VwvBoJuolBMTBKRlOIY",
+            authDomain: "ikura-inventory.firebaseapp.com",
+            databaseURL: "https://ikura-inventory-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "ikura-inventory",
+            storageBucket: "ikura-inventory.firebasestorage.app",
+            messagingSenderId: "1044781511532",
+            appId: "1:1044781511532:web:6915232e59a366ee6db949",
+            measurementId: "G-93838PL9HQ"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
+
         const EXCEL_ITEMS = [
-            // ==================== BAR / GETRÄNKE ====================
+            // BAR / GETRÄNKE
             { id: 'b1', dept: 'Bar', name: 'Servietten', category: 'Kellner / Service', unit: 'Packung', soll: 5, current: 5, supplier: 'Selgros' },
             { id: 'b2', dept: 'Bar', name: 'Kerzen', category: 'Kellner / Service', unit: 'Packung', soll: 2, current: 2, supplier: 'Selgros' },
             { id: 'b3', dept: 'Bar', name: 'Toilette Papier', category: 'Kellner / Service', unit: 'Karton', soll: 3, current: 3, supplier: 'Selgros' },
@@ -95,7 +118,7 @@
             { id: 'b60', dept: 'Bar', name: 'Tapioka', category: 'Boboq Topping', unit: 'Karton', soll: 3, current: 3, supplier: 'Boboq' },
             { id: 'b61', dept: 'Bar', name: 'Kaffeeweiser', category: 'Boboq Mixing', unit: 'Sack', soll: 2, current: 2, supplier: 'Boboq' },
             { id: 'b62', dept: 'Bar', name: 'Fructose', category: 'Boboq Mixing', unit: 'Kanister', soll: 2, current: 2, supplier: 'Boboq' },
-            { id: 'b63', dept: 'Bar', name: 'Passionsfrucht Püree', category: 'Boboq Mixing', unit: 'Flasche', soll: 4, current: 4, supplier: 'Boboq' },
+            { id: 'f63', dept: 'Bar', name: 'Passionsfrucht Püree', category: 'Boboq Mixing', unit: 'Flasche', soll: 4, current: 4, supplier: 'Boboq' },
             { id: 'b64', dept: 'Bar', name: 'Geröstete Oolong-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
             { id: 'b65', dept: 'Bar', name: 'Jasmin Grüner-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
             { id: 'b66', dept: 'Bar', name: 'Earl-Grey-Tee', category: 'Boboq Mixing', unit: 'Packung', soll: 4, current: 4, supplier: 'Boboq' },
@@ -104,7 +127,7 @@
             { id: 'b69', dept: 'Bar', name: 'Becher Deckel', category: 'Verpackung Bar', unit: 'Karton', soll: 5, current: 5, supplier: 'Boboq' },
             { id: 'b70', dept: 'Bar', name: 'Strohhalme 1', category: 'Verpackung Bar', unit: 'Karton', soll: 3, current: 3, supplier: 'Boboq' },
 
-            // ==================== BẾP / FOOD ====================
+            // BẾP / FOOD
             { id: 'f1', dept: 'Küche', name: 'Pak Choi (Cải thìa)', category: 'Frische Gemüse', unit: 'Kiste', soll: 3, current: 3, supplier: 'Selgros' },
             { id: 'f2', dept: 'Küche', name: 'Gurke 300–400g NL (Dưa leo)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
             { id: 'f3', dept: 'Küche', name: 'Rotkohl (Bắp cải tím)', category: 'Frische Gemüse', unit: 'Kiste', soll: 2, current: 2, supplier: 'Selgros' },
@@ -170,14 +193,8 @@
         const DEFAULT_SUPPLIERS = ['Asia Import', 'Selgros', 'Hamberger', 'Boboq', 'Kaufland', 'Sonstige'];
 
         function App() {
-            const [items, setItems] = useState(() => {
-                const saved = localStorage.getItem('ikura_inventory_excel');
-                if (saved) {
-                    try { return JSON.parse(saved); } catch (e) { return EXCEL_ITEMS; }
-                }
-                return EXCEL_ITEMS;
-            });
-
+            const [items, setItems] = useState([]);
+            const [loading, setLoading] = useState(true);
             const [suppliers] = useState(DEFAULT_SUPPLIERS);
             const [adminPin] = useState(() => localStorage.getItem('ikura_admin_pin') || '1234');
             const [isAdmin, setIsAdmin] = useState(false);
@@ -194,9 +211,56 @@
             const [editingItem, setEditingItem] = useState(null);
             const [formData, setFormData] = useState({ dept: 'Bar', name: '', category: 'Tee & Basis', unit: 'Flasche', soll: 5, supplier: 'Asia Import' });
 
+            // LẮNG NGHE ĐỒNG BỘ DỮ LIỆU TỪ FIREBASE REALTIME
             useEffect(() => {
-                localStorage.setItem('ikura_inventory_excel', JSON.stringify(items));
-            }, [items]);
+                const itemsRef = db.ref('ikura_inventory_items');
+                const listener = itemsRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+
+                    // Kiểm tra dữ liệu cũ trong localStorage máy này
+                    const localSaved = localStorage.getItem('ikura_inventory_excel');
+                    let localItems = null;
+                    if (localSaved) {
+                        try { localItems = JSON.parse(localSaved); } catch(e){}
+                    }
+
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        setItems(data);
+                    } else {
+                        // TỰ ĐỘNG CHUYỂN: Nếu Cloud trống, ưu tiên lấy dữ liệu đã chỉnh sửa cũ từ thiết bị này!
+                        const initialData = (localItems && localItems.length > 0) ? localItems : EXCEL_ITEMS;
+                        itemsRef.set(initialData);
+                        setItems(initialData);
+                    }
+                    setLoading(false);
+                });
+
+                return () => itemsRef.off('value', listener);
+            }, []);
+
+            // HÀM ĐỒNG BỘ CẬP NHẬT LÊN CLOUD
+            const saveToCloud = (newItems) => {
+                setItems(newItems);
+                db.ref('ikura_inventory_items').set(newItems);
+            };
+
+            // HÀM ÉP TẢI DỮ LIỆU CỦ TỪ MÁY LÊN CLOUD
+            const forceUploadLocalToCloud = () => {
+                const localSaved = localStorage.getItem('ikura_inventory_excel');
+                if (localSaved) {
+                    try {
+                        const localItems = JSON.parse(localSaved);
+                        if (localItems && localItems.length > 0) {
+                            if (window.confirm('Bạn có chắc chắn muốn đẩy dữ liệu cũ lưu trên thiết bị này đè lên Cloud không?')) {
+                                saveToCloud(localItems);
+                                alert('✅ Đã đẩy thành công dữ liệu cũ từ thiết bị này lên Cloud Firebase!');
+                                return;
+                            }
+                        }
+                    } catch(e){}
+                }
+                alert('Không tìm thấy dữ liệu cũ nào được lưu trên thiết bị này.');
+            };
 
             const currentCategories = ['Tất cả', ...new Set(items.filter(i => selectedDept === 'Tất cả' || i.dept === selectedDept).map(i => i.category))];
 
@@ -221,20 +285,22 @@
             };
 
             const updateCurrent = (id, delta) => {
-                setItems(prev => prev.map(item => {
+                const updated = items.map(item => {
                     if (item.id === id) {
                         return { ...item, current: Math.max(0, item.current + delta) };
                     }
                     return item;
-                }));
+                });
+                saveToCloud(updated);
             };
 
             const handleSaveItem = (e) => {
                 e.preventDefault();
                 if (!formData.name.trim()) return;
 
+                let updated = [];
                 if (editingItem) {
-                    setItems(prev => prev.map(i => i.id === editingItem.id ? { ...i, ...formData, soll: Number(formData.soll) } : i));
+                    updated = items.map(i => i.id === editingItem.id ? { ...i, ...formData, soll: Number(formData.soll) } : i);
                 } else {
                     const newItem = {
                         id: Date.now().toString(),
@@ -242,14 +308,16 @@
                         soll: Number(formData.soll),
                         current: Number(formData.soll)
                     };
-                    setItems(prev => [...prev, newItem]);
+                    updated = [...items, newItem];
                 }
+                saveToCloud(updated);
                 closeModal();
             };
 
             const deleteItem = (id) => {
                 if (window.confirm('Xóa món này khỏi danh mục?')) {
-                    setItems(prev => prev.filter(i => i.id !== id));
+                    const updated = items.filter(i => i.id !== id);
+                    saveToCloud(updated);
                 }
             };
 
@@ -274,13 +342,14 @@
             };
 
             const handleRestockSupplier = (supplierName) => {
-                setItems(prev => prev.map(item => {
+                const updated = items.map(item => {
                     const matchDept = selectedDept === 'Tất cả' || item.dept === selectedDept;
                     if (matchDept && item.supplier === supplierName && item.current < item.soll) {
                         return { ...item, current: item.soll };
                     }
                     return item;
-                }));
+                });
+                saveToCloud(updated);
             };
 
             const copyToClipboard = (supplierName, missingItems) => {
@@ -305,6 +374,15 @@
 
             const missingItemsTotal = items.filter(i => (selectedDept === 'Tất cả' || i.dept === selectedDept) && i.current < i.soll);
 
+            if (loading) {
+                return (
+                    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center space-y-3">
+                        <div className="w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-xs font-bold text-slate-400">Đang đồng bộ dữ liệu Cloud...</p>
+                    </div>
+                );
+            }
+
             return (
                 <div className="w-full flex flex-col min-h-screen pb-32 overflow-x-hidden">
                     
@@ -316,7 +394,10 @@
                             </div>
                             <div>
                                 <h1 className="font-bold text-sm leading-none">Quản Lý Kho</h1>
-                                <p className="text-[10px] text-slate-400 mt-0.5">Eisleben</p>
+                                <p className="text-[10px] text-emerald-400 mt-0.5 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                    Cloud Online
+                                </p>
                             </div>
                         </div>
 
@@ -339,7 +420,7 @@
                         </div>
                     </header>
 
-                    {/* BỘ LỌC KHO BAR / BẾP (CỐ ĐỊNH NGAY DƯỚI HEADER) */}
+                    {/* BỘ LỌC KHO BAR / BẾP */}
                     <div className="sticky top-[54px] z-30 bg-slate-900 border-b border-slate-800 p-1.5 flex gap-1.5 shadow-md w-full">
                         <button 
                             onClick={() => { setSelectedDept('Tất cả'); setSelectedCategory('Tất cả'); }} 
@@ -402,7 +483,6 @@
                                                 }`}
                                             >
                                                 <div className="flex-1 min-w-0 pr-1">
-                                                    {/* Ép các tên quá dài tự động rớt dòng thay vì đẩy chiều ngang màn hình */}
                                                     <div className="flex items-start gap-1.5 mb-1.5">
                                                         <span className={`text-[9px] px-1.5 py-0.5 mt-0.5 rounded font-black uppercase tracking-wider shrink-0 ${item.dept === 'Küche' ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}>
                                                             {item.dept || 'Bar'}
@@ -507,6 +587,17 @@
                         {/* TAB 3: DANH MỤC & CÀI ĐẶT (ADMIN ONLY) */}
                         {activeTab === 'manage' && isAdmin && (
                             <div className="space-y-3 w-full">
+                                {/* BỔ SUNG NÚT ĐỒNG BỘ THỦ CÔNG DỮ LIỆU CŨ */}
+                                <div className="bg-amber-950/20 border border-amber-500/30 p-3 rounded-2xl flex items-center justify-between gap-2 text-xs">
+                                    <div>
+                                        <p className="font-bold text-amber-400">Khôi phục dữ liệu từ máy này?</p>
+                                        <p className="text-[10px] text-slate-400 mt-0.5">Đẩy dữ liệu cũ đã chỉnh sửa từ thiết bị này lên Cloud</p>
+                                    </div>
+                                    <button onClick={forceUploadLocalToCloud} className="bg-amber-600 active:bg-amber-700 text-white font-bold px-3 py-2 rounded-xl shrink-0 text-xs shadow">
+                                        ⬆️ Đẩy lên Cloud
+                                    </button>
+                                </div>
+
                                 <div className="bg-slate-900 rounded-2xl border border-slate-800 divide-y divide-slate-800/80 text-xs shadow-md w-full">
                                     {filteredItems.map(item => (
                                         <div key={item.id} className="p-3 flex items-center justify-between w-full overflow-hidden">
